@@ -5,26 +5,37 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CANDriveSubsystem;
-import pabeles.concurrency.ConcurrencyOps.NewInstance;
+import frc.robot.subsystems.CANRollerSubsystem;
 
-public final class Autos {
-  private spinnyAutos(){
-  new ParallelCommandGroup(
-        new SequentialCommandGroup(
-          arcadeDrive.withTimeout(6),
-          stopArcadeDrive
-        ),
-        new SequentialCommandGroup(
-          spinRoller.withTimeout(5),
-          stopRoller
-        )
-      );
-  }
-}
-  // Example autonomous command which drives forward for 1 second.
+public class Autos extends SequentialCommandGroup {
+
+  public Autos(){
+    CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
+    CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+    Command spinRoller = Commands.run(() -> rollerSubsystem.spinRoller(0.5),rollerSubsystem);
+    Command stopRoller = Commands.run(() -> rollerSubsystem.spinRoller(0), rollerSubsystem);
+    Command arcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0.25), driveSubsystem);
+    Command stopArcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0), driveSubsystem); 
+
+    addCommands(
+    new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        arcadeDrive.withTimeout(6),
+        stopArcadeDrive
+      ),
+      new SequentialCommandGroup(
+        spinRoller.withTimeout(5),
+        stopRoller
+      )
+    ));
+}}
+
+
+// Example autonomous command which drives forward for 1 second.
 //  public static final Command exampleAuto(CANDriveSubsystem driveSubsystem) {
 //    return driveSubsystem.driveArcade(driveSubsystem, () -> 1, () -> -0.5).withTimeout(5.0);
 
