@@ -23,6 +23,12 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 22;
     public static final int RIGHT_FOLLOWER_ID = 23;
 
+    //posible way of inverting motors \/ Would need to know which to invert
+    public static final boolean leftLeader = false;
+    public static final boolean rightLeader = false;
+    public static final boolean leftFollower = false;
+    public static final boolean rightFollower = false;
+
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
   }
 
