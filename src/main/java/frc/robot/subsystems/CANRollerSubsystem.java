@@ -43,6 +43,10 @@ public class CANRollerSubsystem extends SubsystemBase {
   public void periodic() {
   }
 
+  public void spinRoller (double speed) {
+    rollerMotor.set(speed);
+  }
+
   // Command to run the roller with joystick inputs
   public Command runRoller(
       CANRollerSubsystem rollerSubsystem, DoubleSupplier forward, DoubleSupplier reverse) {

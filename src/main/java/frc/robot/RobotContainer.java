@@ -4,8 +4,14 @@
 
 package frc.robot;
 
+import javax.sound.midi.Sequencer;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -48,7 +54,7 @@ public class RobotContainer {
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with
     // autoChooser.addOption
-    autoChooser.setDefaultOption("Autonomous", Autos.exampleAuto(driveSubsystem));
+   // autoChooser.setDefaultOption("Autonomous", Autos.exampleAuto(driveSubsystem));
   }
 
   /**
@@ -87,6 +93,7 @@ public class RobotContainer {
             rollerSubsystem,
             () -> operatorController.getRightTriggerAxis(),
             () -> operatorController.getLeftTriggerAxis()));
+    
   }
 
   /**
@@ -96,6 +103,25 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return autoChooser.getSelected();
+    Command spinRoller = Commands.run(() -> rollerSubsystem.spinRoller(0.5),rollerSubsystem);
+    Command stopRoller = Commands.run(() -> rollerSubsystem.spinRoller(0), rollerSubsystem);
+    Command spinAndStopRoller = spinRoller.withTimeout(1).andThen(stopRoller);
+    Command arcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0.25), driveSubsystem);
+    Command stopArcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0), driveSubsystem); 
+
+    new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        arcadeDrive.withTimeout(6),
+        stopArcadeDrive
+      ),
+      new SequentialCommandGroup(
+        spinRoller.withTimeout(5),
+        stopRoller
+      )
+    );
+
+    return spinAndStopRoller;
+    // return autoChooser.getSelected();
   }
+
 }
