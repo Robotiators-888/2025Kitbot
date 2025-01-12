@@ -11,6 +11,7 @@ import frc.robot.subsystems.CANDriveSubsystem;
 import pabeles.concurrency.ConcurrencyOps.NewInstance;
 
 public final class Autos {
+  private spinnyAutos(){
   new ParallelCommandGroup(
         new SequentialCommandGroup(
           arcadeDrive.withTimeout(6),
@@ -21,6 +22,7 @@ public final class Autos {
           stopRoller
         )
       );
+  }
 }
   // Example autonomous command which drives forward for 1 second.
 //  public static final Command exampleAuto(CANDriveSubsystem driveSubsystem) {
