@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -15,7 +18,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.Autos;    <- got mad at this
-import frc.robot.subsystems.CANDriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.CANRollerSubsystem;
 
 /**
@@ -29,7 +32,7 @@ import frc.robot.subsystems.CANRollerSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems
-  private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
+  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
 
   // The driver's controller
@@ -42,6 +45,8 @@ public class RobotContainer {
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+  
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -103,7 +108,8 @@ public class RobotContainer {
     // An example command will be run in autonomous
    return new Autos();
     // return autoChooser.getSelected();
-    
   }
+}    
+    
 
-}
+
