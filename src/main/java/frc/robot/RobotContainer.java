@@ -3,20 +3,14 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
-import frc.robot.commands.Autos;
+import frc.robot.commands.Spinny_Auto;
 //import frc.robot.commands.Autos;    <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.CANRollerSubsystem;
@@ -32,8 +26,8 @@ import frc.robot.subsystems.CANRollerSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems
-  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-  private final CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+  public final static DriveSubsystem driveSubsystem = new DriveSubsystem();
+  public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
 
   // The driver's controller
   private final CommandXboxController driverController = new CommandXboxController(
@@ -44,14 +38,15 @@ public class RobotContainer {
       OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
   // The autonomous chooser
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
-  
-
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    SmartDashboard.
+    autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
+    //autoChooser.addOption("Next Auto", new );
+
     configureBindings();
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
@@ -78,7 +73,7 @@ public class RobotContainer {
     // Set the A button to run the "runRoller" command from the factory with a fixed
     // value ejecting the gamepiece while the button is held
     operatorController.a()
-        .whileTrue(rollerSubsystem.runRoller(rollerSubsystem, () -> RollerConstants.ROLLER_EJECT_VALUE, () -> 0));
+        .whileTrue(rollerSubsystem.runRoller(rollerSubsystem, RollerConstants.ROLLER_EJECT_VALUE, 0.0));
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
@@ -94,8 +89,8 @@ public class RobotContainer {
     rollerSubsystem.setDefaultCommand(
         rollerSubsystem.runRoller(
             rollerSubsystem,
-            () -> operatorController.getRightTriggerAxis(),
-            () -> operatorController.getLeftTriggerAxis()));
+            operatorController.getRightTriggerAxis(),
+            operatorController.getLeftTriggerAxis()));
     
   }
 
@@ -106,7 +101,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-   return new Autos();
+   return autoChooser.getSelected();
     // return autoChooser.getSelected();
   }
 }    

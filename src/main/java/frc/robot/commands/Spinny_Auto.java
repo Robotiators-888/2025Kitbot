@@ -9,13 +9,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.CANRollerSubsystem;
 
-public class Autos extends SequentialCommandGroup {
+public class Spinny_Auto extends SequentialCommandGroup {
 
-  public Autos(){
-    DriveSubsystem driveSubsystem = new DriveSubsystem();
-    CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+  public Spinny_Auto(){
+    DriveSubsystem driveSubsystem = RobotContainer.driveSubsystem;
+    CANRollerSubsystem rollerSubsystem = RobotContainer.rollerSubsystem;
     Command spinRoller = Commands.run(() -> rollerSubsystem.spinRoller(0.5),rollerSubsystem);
     Command stopRoller = Commands.run(() -> rollerSubsystem.spinRoller(0), rollerSubsystem);
     Command arcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0.25), driveSubsystem);
