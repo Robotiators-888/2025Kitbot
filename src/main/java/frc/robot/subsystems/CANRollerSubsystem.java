@@ -16,7 +16,7 @@ public class CANRollerSubsystem extends SubsystemBase {
    TalonSRX rollerMotor;
   public CANRollerSubsystem() {
     // Set up the roller motor as a brushed motor
-    TalonSRX rollerMotor = new TalonSRX(RollerConstants.ROLLER_MOTOR_ID);
+     rollerMotor = new TalonSRX(RollerConstants.ROLLER_MOTOR_ID);
 
     // Create and apply configuration for roller motor. Voltage compensation helps
     // the roller behave the same as the battery
@@ -33,11 +33,7 @@ public class CANRollerSubsystem extends SubsystemBase {
         rollerMotor.set(ControlMode.PercentOutput, speed);
   }
 
-  // Command to run the roller with joystick inputs
-  public Command runRoller(
-      CANRollerSubsystem rollerSubsystem, Double forward, Double reverse) {
-    return Commands.run(
-        () -> rollerMotor.set(ControlMode.PercentOutput, forward - reverse), rollerSubsystem);
+  public void runRoller(double forward, double backward){
+    rollerMotor.set(ControlMode.PercentOutput, forward - backward);
   }
-
 }
