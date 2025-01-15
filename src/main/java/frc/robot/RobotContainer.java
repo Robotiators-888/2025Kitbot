@@ -38,12 +38,12 @@ public class RobotContainer {
       OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
   // The autonomous chooser
-  private final SendableChooser<Command> autoChooser = new SendableChooser<>();  
+  public final SendableChooser<Command> autoChooser = new SendableChooser<>();  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    SmartDashboard.
+    SmartDashboard.putData("AutoSelector",autoChooser);
     autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
     //autoChooser.addOption("Next Auto", new );
 
