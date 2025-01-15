@@ -86,7 +86,9 @@ public class RobotContainer {
 
     // Set the default command for the roller subsystem to the command from the
     // factory with the values provided by the triggers on the operator controller
-    rollerSubsystem.setDefaultCommand(new RunCommand(() -> rollerSubsystem.runRoller(driverController.getRightTriggerAxis() * RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR, driverController.getLeftTriggerAxis()* RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR),rollerSubsystem));
+    rollerSubsystem.setDefaultCommand(new RunCommand(() -> rollerSubsystem.runRoller(
+      driverController.getRightTriggerAxis() * RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR, 
+      driverController.getLeftTriggerAxis()* RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR),rollerSubsystem));
   }
 
   /**
