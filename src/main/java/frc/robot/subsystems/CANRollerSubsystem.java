@@ -6,10 +6,9 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RollerConstants;
 
@@ -38,11 +37,7 @@ public class CANRollerSubsystem extends SubsystemBase {
   }
 
   public void rollerChange(double changeamount) {
-    if (changeamount < 0){
-      Roller_Trigger_Speed = Math.max(0, Roller_Trigger_Speed - changeamount);
-    }
-    if (changeamount > 0)
-    Roller_Trigger_Speed = Math.min(0.5, Roller_Trigger_Speed + changeamount);
+    Roller_Trigger_Speed = MathUtil.clamp(Roller_Trigger_Speed + changeamount, 0, 0.5);
     SmartDashboard.putNumber("Roller Speed", Roller_Trigger_Speed);
   }
 
