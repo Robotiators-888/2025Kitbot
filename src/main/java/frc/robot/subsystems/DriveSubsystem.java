@@ -70,18 +70,18 @@ public class DriveSubsystem extends SubsystemBase {
     // so that postive values drive both sides forward
     config.inverted(true);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  
-   // public Robot() {
-     // leftLeader.setInverted(true);
-      // All other subsystem initialization
+
+    // public Robot() {
+    // leftLeader.setInverted(true);
+    // All other subsystem initialization
     // ...
 
     // Load the RobotConfig from the GUI settings. You should probably
     // store this in your Constants file
   }
+
   @Override
-  public void periodic() {
-  }
+  public void periodic() {}
 
 
   public void arcadeDrive(double xSpeed, double zRotation) {
@@ -89,12 +89,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   // Command to drive the robot with joystick inputs
-  public Command driveArcade(
-      DriveSubsystem driveSubsystem, DoubleSupplier xSpeed, DoubleSupplier zRotation) {
-    return Commands.run(
-        () -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()), driveSubsystem);
+  public Command driveArcade(DriveSubsystem driveSubsystem, DoubleSupplier xSpeed,
+      DoubleSupplier zRotation) {
+    return Commands.run(() -> drive.arcadeDrive(xSpeed.getAsDouble(), zRotation.getAsDouble()),
+        driveSubsystem);
   }
 
 }
 
-   

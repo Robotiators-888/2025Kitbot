@@ -3,26 +3,28 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.commands.Spinny_Auto;
-//import frc.robot.commands.Autos;    <- got mad at this
+// import frc.robot.commands.Autos; <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.CANRollerSubsystem;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
@@ -31,28 +33,27 @@ public class RobotContainer {
   public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
 
   // The driver's controller
-  private final CommandXboxController driverController = new CommandXboxController(
-      OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController driverController =
+      new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
-  // The operator's controller
- 
 
   // The autonomous chooser
-  public final SendableChooser<Command> autoChooser = new SendableChooser<>();  
+  public final SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    SmartDashboard.putData("AutoSelector",autoChooser);
+    SmartDashboard.putData("AutoSelector", autoChooser);
     autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
-    //autoChooser.addOption("Next Auto", new );
+    // autoChooser.addOption("Next Auto", new );
 
     configureBindings();
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with
     // autoChooser.addOption
-   // autoChooser.setDefaultOption("Autonomous", Autos.exampleAuto(driveSubsystem));
+    // autoChooser.setDefaultOption("Autonomous", Autos.exampleAuto(driveSubsystem));
   }
 
   /**
@@ -75,6 +76,9 @@ public class RobotContainer {
     driverController.a()
         .whileTrue(new RunCommand (() -> rollerSubsystem.spinRoller(RollerConstants.ROLLER_EJECT_VALUE)));
 
+    driverController.x().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
+
+    driverController.y().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(.1), rollerSubsystem));
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
     // controller. The Y axis of the controller is inverted so that pushing the
@@ -86,10 +90,11 @@ public class RobotContainer {
 
     // Set the default command for the roller subsystem to the command from the
     // factory with the values provided by the triggers on the operator controller
+    
     rollerSubsystem.setDefaultCommand(new RunCommand(() -> rollerSubsystem.runRoller(
-      driverController.getRightTriggerAxis() * RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR, 
-      driverController.getLeftTriggerAxis()* RollerConstants.ROLLER_TRIGGER_SCALE_FACTOR),rollerSubsystem));
+      driverController.getRightTriggerAxis() * rollerSubsystem.rollerScaleFactor(), driverController.getLeftTriggerAxis() * rollerSubsystem.rollerScaleFactor() ),rollerSubsystem));
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -98,10 +103,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-   return autoChooser.getSelected();
+    return autoChooser.getSelected();
     // return autoChooser.getSelected();
   }
-}    
-    
+}
 
 
