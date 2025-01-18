@@ -78,7 +78,7 @@ public class RobotContainer {
 
     driverController.x().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
 
-    driverController.y().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(.1), rollerSubsystem));
+    driverController.y().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(0.1), rollerSubsystem));
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
     // controller. The Y axis of the controller is inverted so that pushing the
@@ -86,7 +86,7 @@ public class RobotContainer {
     // value)
     driveSubsystem.setDefaultCommand(
         driveSubsystem.driveArcade(
-            driveSubsystem, () -> -driverController.getLeftY(), () -> -driverController.getRightX()));
+            driveSubsystem, () -> driverController.getLeftY(), () -> driverController.getRightX()));
 
     // Set the default command for the roller subsystem to the command from the
     // factory with the values provided by the triggers on the operator controller
