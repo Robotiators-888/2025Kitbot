@@ -5,33 +5,51 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
-
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
+import com.studica.frc.AHRS;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
-  private final SparkMax leftLeader;
-  private final SparkMax leftFollower;
-  private final SparkMax rightLeader;
-  private final SparkMax rightFollower;
+  public SparkMax leftLeader;
+  public SparkMax leftFollower;
+  public SparkMax rightLeader;
+  public SparkMax rightFollower;
+
+  public RelativeEncoder leftLeaderEncoder = leftLeader.getEncoder();
+  public RelativeEncoder rightLeaderEncoder = rightLeader.getEncoder();
+  public RelativeEncoder leftFollowerEncoder = leftFollower.getEncoder();
+  public RelativeEncoder rightFollowerEncoder = rightFollower.getEncoder();
+  private Pose2d odometryPose = new Pose2d();
+
+  DifferentialDriveOdometry driveOdometry;
 
   private final DifferentialDrive drive;
+  private static AHRS navx = new AHRS(SerialPort.Port.kMXP );
+  //TODO:find fix for constructer /\ 
 
   public DriveSubsystem() {
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
     rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
-    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless); 
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -95,5 +113,41 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
+  public Pose2d getPose() {
+    return driveOdometry.getPoseMeters();
+  }
+
+  public DifferentialDrivePoseEstimator m_poseEstimator =
+      new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
+      navx.getRotation2d(),
+      leftLeaderEncoder.getPosition(),
+      rightLeaderEncoder.getPosition(),
+          new Pose2d(0, 0, new Rotation2d(0)));
+    //TODO: cheak to see if done right /\
+
+   public void setPosition(Pose2d position) {
+    //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
+    //new Pose2d(0, 0, new Rotation2d()));
+     //zeroEncoders();
+     driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(), position);
+   }
+        
+public void resetPose(Pose2d pose) {
+    //zeroEncoders();
+    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
+        pose);
+  }
+
+  public ChassisSpeeds getChassisSpeeds() {
+    return DriveSubsystem.kDriveKinematics.toChassisSpeeds(getModuleStates());
+  }//TODO: find where kDriveKinematics is located and fix getmoduelStates
+
+ private static DriveSubsystem INSTANCE = null;
+  public static DriveSubsystem getInstance() {
+    if (INSTANCE == null) {
+        INSTANCE = new DriveSubsystem();
+    }
+    return INSTANCE;
+  }
 }
 

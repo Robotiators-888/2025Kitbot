@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.util.Units;
+
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -24,6 +28,16 @@ public final class Constants {
     public static final int RIGHT_FOLLOWER_ID = 23;
 
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
+
+     //chasse config
+  public static final double kTrackWidth = Units.inchesToMeters(24);
+  public static final double kWheelBase = Units.inchesToMeters(31);
+  // need to be measured /\
+
+  public static final DifferentialDriveKinematics KDriveKinematics =
+   new DifferentialDriveKinematics(kTrackWidth);
+
+   
   }
 
   public static final class RollerConstants {
@@ -37,4 +51,6 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 1;
   }
+
+
 }

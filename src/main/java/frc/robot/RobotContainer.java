@@ -4,14 +4,13 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
@@ -19,7 +18,6 @@ import frc.robot.commands.Spinny_Auto;
 // import frc.robot.commands.Autos; <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.CANRollerSubsystem;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
   // The robot's subsystems
   public final static DriveSubsystem driveSubsystem = new DriveSubsystem();
   public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
@@ -94,7 +93,7 @@ public class RobotContainer {
     rollerSubsystem.setDefaultCommand(new RunCommand(() -> rollerSubsystem.runRoller(
       driverController.getRightTriggerAxis() * rollerSubsystem.rollerScaleFactor(), driverController.getLeftTriggerAxis() * rollerSubsystem.rollerScaleFactor() ),rollerSubsystem));
   }
-
+ 
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -102,10 +101,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return new PathPlannerAuto("Example Auto");
     // An example command will be run in autonomous
-    return autoChooser.getSelected();
     // return autoChooser.getSelected();
   }
+  
+  
 }
 
 
