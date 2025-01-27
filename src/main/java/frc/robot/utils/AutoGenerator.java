@@ -23,27 +23,27 @@ public class AutoGenerator extends SubsystemBase {
       e.printStackTrace();
       return;
     }
-    AutoBuilder.configureRamsete(
+    AutoBuilder.configure(
         Drivetrain::getPose, // Robot pose supplier
         Drivetrain::resetPose, // Method to reset odometry (will be called if your auto has starting pose)
         Drivetrain::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        new ReplanningConfig(), config, // The robot configuration
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        }, Drivetrain // Reference to this subsystem to set requirements
-    );
-//TODO:Fix the code /\ try to use  Ramsete 
-// Prevouse part ((speeds, feedforwards) -> Drivetrain.driveRobotRelative(speeds),
-        //new PPHolonomicDriveController( 
-          //new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-          //new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-          //TODO: find code that uses pathplanner and tank drive)
+        (speeds, feedforwards) -> Drivetrain.driveRobotRelative(speeds),
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    new PIDConstants(1.5, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(1.5, 0.0, 0.0) // Rotation PID constants
+            ),
+            config, // The robot configuration
+            () -> {
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            Drivetrain // Reference to this subsystem to set requirements
+        );
 
-    registerAllCommands();
+        registerAllCommands();
   }
 
   public void registerAllCommands() {}

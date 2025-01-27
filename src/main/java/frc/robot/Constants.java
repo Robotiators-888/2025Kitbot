@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 
 
 /**
@@ -36,6 +37,7 @@ public final class Constants {
 
   public static final DifferentialDriveKinematics KDriveKinematics =
    new DifferentialDriveKinematics(kTrackWidth);
+   public static double WheelSpeeds = 0.5;
 
    
   }

@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,7 +40,7 @@ public class DriveSubsystem extends SubsystemBase {
   DifferentialDriveOdometry driveOdometry;
 
   private final DifferentialDrive drive;
-  private static AHRS navx = new AHRS(SerialPort.Port.kMXP );
+  private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
   //TODO:find fix for constructer /\ 
 
   public DriveSubsystem() {
@@ -138,9 +137,24 @@ public void resetPose(Pose2d pose) {
         pose);
   }
 
+
+
+
   public ChassisSpeeds getChassisSpeeds() {
-    return DriveSubsystem.kDriveKinematics.toChassisSpeeds(getModuleStates());
+    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(null);
   }//TODO: find where kDriveKinematics is located and fix getmoduelStates
+
+  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+    driveRobotRelative(
+        ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
+  }
+
+  public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+  }
+
+
+
 
  private static DriveSubsystem INSTANCE = null;
   public static DriveSubsystem getInstance() {
