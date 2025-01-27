@@ -37,7 +37,7 @@ public final class Constants {
 
   public static final DifferentialDriveKinematics KDriveKinematics =
    new DifferentialDriveKinematics(kTrackWidth);
-   public static double WheelSpeeds = 0.5;
+   public static double Speeds = 0.5;
 
    
   }
