@@ -149,7 +149,7 @@ public void resetPose(Pose2d pose) {
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
     driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-  }
+  }  
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
