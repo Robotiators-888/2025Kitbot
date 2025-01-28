@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -140,8 +141,8 @@ public void resetPose(Pose2d pose) {
 
 
 
-  public ChassisSpeeds getChassisSpeeds() {
-    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(null);
+  public ChassisSpeeds getChassisSpeeds(DifferentialDriveWheelSpeeds speed) {
+    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(speed);
   }//TODO: Replace getmoduelStates with the appropriate wheels speed  
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
