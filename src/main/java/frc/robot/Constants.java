@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+//import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
+//import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 
 
 /**
@@ -33,21 +36,28 @@ public final class Constants {
      //chasse config
   public static final double kTrackWidth = Units.inchesToMeters(24);
   public static final double kWheelBase = Units.inchesToMeters(31);
-  // need to be measured /\
-
+  public static final double kTrackRadius = Units.inchesToMeters(19.6 * Math.sqrt(2) / 2);
+  public static final double kMaxModuleSpeed = Units.feetToMeters(15);
+  ChassisSpeeds chassisSpeeds = new ChassisSpeeds(2.0, 0, 1.0);
+  DifferentialDriveWheelSpeeds wheelSpeeds = KDriveKinematics.toWheelSpeeds(chassisSpeeds);
+  double leftVelocity = wheelSpeeds.leftMetersPerSecond;
+  double rightVelocity = wheelSpeeds.rightMetersPerSecond;
+  
   public static final DifferentialDriveKinematics KDriveKinematics =
    new DifferentialDriveKinematics(kTrackWidth);
-   public static double Speeds = 0.5;
-
-   
+   //public static double Speeds = 0.5;   
   }
+
+  public static final class Autonomous{
+    public static final double kmaxVelocity = 5.0;
+    public static final double kmaxAcceleration = 2.0;
 
   public static final class RollerConstants {
     public static final int ROLLER_MOTOR_ID = 5;
     public static final int ROLLER_MOTOR_CURRENT_LIMIT = 40;
     public static final double ROLLER_MOTOR_VOLTAGE_COMP = 10;
     public static final double ROLLER_EJECT_VALUE = 0.44;
-  }
+  }}
 
   public static final class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;

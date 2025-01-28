@@ -10,7 +10,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.RollerConstants;
+import frc.robot.Constants.Autonomous.RollerConstants;
 
 /** Class to run the rollers over CAN */
 public class CANRollerSubsystem extends SubsystemBase {
