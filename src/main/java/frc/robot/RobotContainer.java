@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,10 +15,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
-import frc.robot.commands.Spinny_Auto;
+import frc.robot.subsystems.CANRollerSubsystem;
 // import frc.robot.commands.Autos; <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.CANRollerSubsystem;
+import frc.robot.utils.AutoGenerator;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,6 +31,7 @@ public class RobotContainer {
   // The robot's subsystems
   public final static DriveSubsystem driveSubsystem = new DriveSubsystem();
   public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+  private final SendableChooser<Command> autoChooser;
 
   // The driver's controller
   private final CommandXboxController driverController =
@@ -37,14 +39,15 @@ public class RobotContainer {
 
 
   // The autonomous chooser
-  public final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    SmartDashboard.putData("AutoSelector", autoChooser);
-    autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
+  public static AutoGenerator autoGenerator = AutoGenerator.getInstance();
+  
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+      autoChooser = AutoBuilder.buildAutoChooser();
+      SmartDashboard.putData("Auto Chooser", autoChooser);
+    
     // autoChooser.addOption("Next Auto", new );
 
     configureBindings();
@@ -101,9 +104,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Example Auto");
-    // An example command will be run in autonomous
-    // return autoChooser.getSelected();
+    return autoChooser.getSelected();
   }
   
   
