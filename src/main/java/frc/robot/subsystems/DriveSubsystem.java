@@ -37,7 +37,7 @@ public class DriveSubsystem extends SubsystemBase {
   public RelativeEncoder leftFollowerEncoder = leftFollower.getEncoder();
   public RelativeEncoder rightFollowerEncoder = rightFollower.getEncoder();
   private Pose2d odometryPose = new Pose2d();
-//TODO: fix warnings Here, only deleate if nessary
+//TODO: fix warnings Here, only delete if nessary
 
   DifferentialDriveOdometry driveOdometry;
 
@@ -142,7 +142,6 @@ public void resetPose(Pose2d pose) {
 
   double rSpeedRPM = rightLeaderEncoder.getVelocity();
   double lSpeedRPM = leftLeaderEncoder.getVelocity();
-  //These variables are actually in rpm rather than meters per second :(
   double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
   double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
 
