@@ -17,7 +17,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -120,10 +122,6 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
-  public Pose2d getPose() {
-    return driveOdometry.getPoseMeters();
-  }
-
    public void setPosition(Pose2d position) {
     //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
     //new Pose2d(0, 0, new Rotation2d()));
@@ -133,10 +131,16 @@ public class DriveSubsystem extends SubsystemBase {
         
 public void resetPose(Pose2d pose) {
     //zeroEncoders();
-    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
-        pose);
+    //driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
+      //  pose);
+    m_poseEstimator.resetPosition(navx.getRotation2d(), new DifferentialDriveWheelPositions(0, 0), pose);
+    this.odometryPose = pose;
+    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(), odometryPose);
   }
 
+  public Pose2d getPose() {
+    return driveOdometry.getPoseMeters();
+  }
 
   public ChassisSpeeds getChassisSpeeds() {  
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
