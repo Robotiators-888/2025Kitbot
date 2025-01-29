@@ -27,17 +27,18 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
-  public SparkMax leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
-  public SparkMax leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
-  public SparkMax rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
-  public SparkMax rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+  public SparkMax leftLeader;
+  public SparkMax leftFollower;
+  public SparkMax rightLeader;
+  public SparkMax rightFollower;
 
-  public RelativeEncoder leftLeaderEncoder = leftLeader.getEncoder();
-  public RelativeEncoder rightLeaderEncoder = rightLeader.getEncoder();
-  public RelativeEncoder leftFollowerEncoder = leftFollower.getEncoder();
-  public RelativeEncoder rightFollowerEncoder = rightFollower.getEncoder();
+  public RelativeEncoder leftLeaderEncoder;
+  public RelativeEncoder rightLeaderEncoder;
+  public RelativeEncoder leftFollowerEncoder;
+  public RelativeEncoder rightFollowerEncoder;
+
+  public DifferentialDrivePoseEstimator m_poseEstimator;
   private Pose2d odometryPose = new Pose2d();
-//TODO: fix warnings Here, only delete if nessary
 
   DifferentialDriveOdometry driveOdometry;
 
@@ -47,10 +48,15 @@ public class DriveSubsystem extends SubsystemBase {
 
   public DriveSubsystem() {
     // create brushed motors for drive
-    // leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
-    // leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
-    // rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
-    // rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless); 
+    leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
+    leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
+    rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
+    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless); 
+
+    leftLeaderEncoder = leftLeader.getEncoder();
+    rightLeaderEncoder = rightLeader.getEncoder();
+    leftFollowerEncoder = leftFollower.getEncoder();
+    rightFollowerEncoder = rightFollower.getEncoder();
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -90,13 +96,12 @@ public class DriveSubsystem extends SubsystemBase {
     config.inverted(true);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // public Robot() {
-    // leftLeader.setInverted(true);
-    // All other subsystem initialization
-    // ...
-
-    // Load the RobotConfig from the GUI settings. You should probably
-    // store this in your Constants file
+    m_poseEstimator =
+    new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
+    navx.getRotation2d(),
+    leftLeaderEncoder.getPosition(),
+    rightLeaderEncoder.getPosition(),
+        new Pose2d(0, 0, new Rotation2d(0)));
   }
 
 
@@ -119,14 +124,6 @@ public class DriveSubsystem extends SubsystemBase {
     return driveOdometry.getPoseMeters();
   }
 
-  public DifferentialDrivePoseEstimator m_poseEstimator =
-      new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
-      navx.getRotation2d(),
-      leftLeaderEncoder.getPosition(),
-      rightLeaderEncoder.getPosition(),
-          new Pose2d(0, 0, new Rotation2d(0)));
-    //TODO: check to see if done right
-
    public void setPosition(Pose2d position) {
     //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
     //new Pose2d(0, 0, new Rotation2d()));
@@ -140,15 +137,13 @@ public void resetPose(Pose2d pose) {
         pose);
   }
 
-  double rSpeedRPM = rightLeaderEncoder.getVelocity();
-  double lSpeedRPM = leftLeaderEncoder.getVelocity();
-  double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
-  double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
 
-  DifferentialDriveWheelSpeeds differentialDriveWheelSpeeds = new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS);
-
-  public ChassisSpeeds getChassisSpeeds() {
-    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(differentialDriveWheelSpeeds);
+  public ChassisSpeeds getChassisSpeeds() {  
+    double rSpeedRPM = rightLeaderEncoder.getVelocity();
+    double lSpeedRPM = leftLeaderEncoder.getVelocity();
+    double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
+    double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
+    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
   }  
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {

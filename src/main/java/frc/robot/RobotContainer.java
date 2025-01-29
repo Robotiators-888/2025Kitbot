@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.CANRollerSubsystem;
-// import frc.robot.commands.Autos; <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.AutoGenerator;
 
@@ -29,8 +28,8 @@ import frc.robot.utils.AutoGenerator;
 public class RobotContainer {
 
   // The robot's subsystems
-  public final static DriveSubsystem driveSubsystem = new DriveSubsystem();
-  public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+  public final static DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
+  public final static CANRollerSubsystem rollerSubsystem = CANRollerSubsystem.getInstance();
   private final SendableChooser<Command> autoChooser;
 
   // The driver's controller

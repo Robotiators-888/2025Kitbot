@@ -47,4 +47,12 @@ public class CANRollerSubsystem extends SubsystemBase {
   public void runRoller(double forward, double backward) {
     rollerMotor.set(ControlMode.PercentOutput, forward - backward);
   }
+
+  private static CANRollerSubsystem INSTANCE = null;
+  public static CANRollerSubsystem getInstance() {
+    if (INSTANCE == null) {
+        INSTANCE = new CANRollerSubsystem();
+    }
+    return INSTANCE;
+  }
 }
