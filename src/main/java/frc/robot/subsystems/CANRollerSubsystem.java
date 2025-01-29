@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,21 +47,4 @@ public class CANRollerSubsystem extends SubsystemBase {
   public void runRoller(double forward, double backward) {
     rollerMotor.set(ControlMode.PercentOutput, forward - backward);
   }
-public class DriveSubsystem extends SubsystemBase {
-  public DriveSubsystem() {
-    // All other subsystem initialization
-    // ...
-
-    // Load the RobotConfig from the GUI settings. You should probably
-    // store this in your Constants file
-    RobotConfig config;
-    try{
-      config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
-
-  }
-}
 }

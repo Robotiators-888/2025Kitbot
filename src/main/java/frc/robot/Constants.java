@@ -36,7 +36,7 @@ public final class Constants {
 
     public static final DifferentialDriveKinematics KDriveKinematics = new DifferentialDriveKinematics(kTrackWidth);
     public static double Speeds = 0.5;
-    public static double wheeldiameterin = 6;
+    public static double wheelDiameterIN = 6;
    
   }
 

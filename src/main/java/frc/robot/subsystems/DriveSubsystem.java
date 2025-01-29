@@ -125,7 +125,7 @@ public class DriveSubsystem extends SubsystemBase {
       leftLeaderEncoder.getPosition(),
       rightLeaderEncoder.getPosition(),
           new Pose2d(0, 0, new Rotation2d(0)));
-    //TODO: cheak to see if done right /\
+    //TODO: check to see if done right
 
    public void setPosition(Pose2d position) {
     //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
@@ -149,7 +149,7 @@ public void resetPose(Pose2d pose) {
 
   public ChassisSpeeds getChassisSpeeds() {
     return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(differentialDriveWheelSpeeds);
-  }//TODO: Replace getmoduelStates with the appropriate wheels speed  
+  }  
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
     driveRobotRelative(
