@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -98,6 +99,7 @@ public class DriveSubsystem extends SubsystemBase {
     // store this in your Constants file
   }
 
+
   @Override
   public void periodic() {}
 
@@ -138,11 +140,16 @@ public void resetPose(Pose2d pose) {
         pose);
   }
 
+  double rSpeedRPM = rightLeaderEncoder.getVelocity();
+  double lSpeedRPM = leftLeaderEncoder.getVelocity();
+  //These variables are actually in rpm rather than meters per second :(
+  double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
+  double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
 
+  DifferentialDriveWheelSpeeds differentialDriveWheelSpeeds = new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS);
 
-
-  public ChassisSpeeds getChassisSpeeds(DifferentialDriveWheelSpeeds speed) {
-    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(speed);
+  public ChassisSpeeds getChassisSpeeds() {
+    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(differentialDriveWheelSpeeds);
   }//TODO: Replace getmoduelStates with the appropriate wheels speed  
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {

@@ -30,14 +30,13 @@ public final class Constants {
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
 
      //chasse config
-  public static final double kTrackWidth = Units.inchesToMeters(24);
-  public static final double kWheelBase = Units.inchesToMeters(31);
-  // need to be measured /\
+    public static final double kTrackWidth = Units.inchesToMeters(24);
+    public static final double kWheelBase = Units.inchesToMeters(31);
+    // need to be measured /\
 
-  public static final DifferentialDriveKinematics KDriveKinematics =
-   new DifferentialDriveKinematics(kTrackWidth);
-   public static double Speeds = 0.5;
-
+    public static final DifferentialDriveKinematics KDriveKinematics = new DifferentialDriveKinematics(kTrackWidth);
+    public static double Speeds = 0.5;
+    public static double wheeldiameterin = 6;
    
   }
 
