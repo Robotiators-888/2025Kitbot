@@ -141,8 +141,8 @@ public void resetPose(Pose2d pose) {
   public ChassisSpeeds getChassisSpeeds() {  
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
-    double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
-    double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI;
+    double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI/60;
+    double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI/60;
     return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
   }  
 
