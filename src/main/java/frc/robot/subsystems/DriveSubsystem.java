@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
   public RelativeEncoder rightFollowerEncoder;
 
   public DifferentialDrivePoseEstimator m_poseEstimator;
-  private Pose2d odometryPose = new Pose2d();
+  // private Pose2d odometryPose = new Pose2d();
 
   DifferentialDriveOdometry driveOdometry;
 
@@ -47,16 +47,20 @@ public class DriveSubsystem extends SubsystemBase {
 
 
   public DriveSubsystem() {
+
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
     rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
-    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless); 
+    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless);
 
     leftLeaderEncoder = leftLeader.getEncoder();
     rightLeaderEncoder = rightLeader.getEncoder();
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
+
+    driveOdometry = new DifferentialDriveOdometry(getGyroHeading(), leftLeaderEncoder.getPosition(),
+        rightFollowerEncoder.getPosition());
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -96,21 +100,22 @@ public class DriveSubsystem extends SubsystemBase {
     config.inverted(true);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    m_poseEstimator =
-    new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
-    navx.getRotation2d(),
-    leftLeaderEncoder.getPosition(),
-    rightLeaderEncoder.getPosition(),
+    m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
+        navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
         new Pose2d(0, 0, new Rotation2d(0)));
   }
 
+  public Rotation2d getGyroHeading() {
+
+    return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
+  }
 
   @Override
   public void periodic() {}
 
 
   public void arcadeDrive(double xSpeed, double zRotation) {
-    drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation,2));
+    drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
   }
 
   // Command to drive the robot with joystick inputs
@@ -124,27 +129,28 @@ public class DriveSubsystem extends SubsystemBase {
     return driveOdometry.getPoseMeters();
   }
 
-   public void setPosition(Pose2d position) {
-    //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
-    //new Pose2d(0, 0, new Rotation2d()));
-     //zeroEncoders();
-     driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(), position);
-   }
-        
-public void resetPose(Pose2d pose) {
-    //zeroEncoders();
-    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
-        pose);
+  public void setPosition(Pose2d position) {
+    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+        rightLeaderEncoder.getPosition(), position);
+  }
+
+  public void resetPose(Pose2d pose) {
+    // zeroEncoders();
+    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+        rightLeaderEncoder.getPosition(), pose);
   }
 
 
-  public ChassisSpeeds getChassisSpeeds() {  
+  public ChassisSpeeds getChassisSpeeds() {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
-    double rSpeedMPS = rSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI/60;
-    double lSpeedMPS = lSpeedRPM*Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)*Math.PI/60;
-    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
-  }  
+    double rSpeedMPS =
+        rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+    double lSpeedMPS =
+        lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+    return Constants.DriveConstants.KDriveKinematics
+        .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
+  }
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
     driveRobotRelative(
@@ -153,16 +159,16 @@ public void resetPose(Pose2d pose) {
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-    //TODO:Find uses for TargetSpeeds, driveRobotRelative is needed.
+    // TODO:Find uses for TargetSpeeds, driveRobotRelative is needed.
   }
 
 
 
+  private static DriveSubsystem INSTANCE = null;
 
- private static DriveSubsystem INSTANCE = null;
   public static DriveSubsystem getInstance() {
     if (INSTANCE == null) {
-        INSTANCE = new DriveSubsystem();
+      INSTANCE = new DriveSubsystem();
     }
     return INSTANCE;
   }
