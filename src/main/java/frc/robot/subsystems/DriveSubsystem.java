@@ -175,12 +175,11 @@ public class DriveSubsystem extends SubsystemBase {
         ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
   }
 
+  
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
+    @SuppressWarnings("unused")
     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-
   }
-
-
 
   private static DriveSubsystem INSTANCE = null;
 
