@@ -16,6 +16,7 @@ import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -65,8 +66,6 @@ public class DriveSubsystem extends SubsystemBase {
     rightLeaderEncoder = rightLeader.getEncoder();
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
-
-    
 
     driveOdometry = new DifferentialDriveOdometry(getGyroHeading(), leftLeaderEncoder.getPosition(),
         rightLeaderEncoder.getPosition());
@@ -175,10 +174,12 @@ public class DriveSubsystem extends SubsystemBase {
         ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
   }
 
+  DifferentialDriveKinematics kinematics =
+  new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
   
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     @SuppressWarnings("unused")
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(robotRelativeSpeeds);
   }
 
   private static DriveSubsystem INSTANCE = null;
