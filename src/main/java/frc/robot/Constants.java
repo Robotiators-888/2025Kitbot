@@ -26,18 +26,23 @@ public final class Constants {
     public static final int LEFT_FOLLOWER_ID = 21;
     public static final int RIGHT_LEADER_ID = 22;
     public static final int RIGHT_FOLLOWER_ID = 23;
+    public static final double GEARRATIO = 10.86; //gear ratio from output shaft of motor to wheel axle
+    
+
 
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
-
      //chasse config
     public static final double kTrackWidth = Units.inchesToMeters(24);
     public static final double kWheelBase = Units.inchesToMeters(31);
     // need to be measured /\
 
     public static final DifferentialDriveKinematics KDriveKinematics = new DifferentialDriveKinematics(kTrackWidth);
-    public static double Speeds = 0.5;
+    public static double Speeds = 0.2;
     public static double wheelDiameterIN = 6;
-   
+    public static final double ConversionFactor = Units.inchesToMeters(wheelDiameterIN * Math.PI / GEARRATIO);
+    // circumferance multiply by gearratio to find how far the robot has travelled. then converted to meters 
+    //convertion over or convertion multiply
+ 
   }
 
   public static final class RollerConstants {

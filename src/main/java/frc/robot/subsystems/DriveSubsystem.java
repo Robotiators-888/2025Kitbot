@@ -19,6 +19,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,6 +29,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
+
+  public StructPublisher<Pose2d> publisher =
+      NetworkTableInstance.getDefault().getStructTopic("Odometry", Pose2d.struct).publish();
   public SparkMax leftLeader;
   public SparkMax leftFollower;
   public SparkMax rightLeader;
@@ -41,6 +46,8 @@ public class DriveSubsystem extends SubsystemBase {
   // private Pose2d odometryPose = new Pose2d();
 
   DifferentialDriveOdometry driveOdometry;
+
+
 
   private final DifferentialDrive drive;
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
@@ -59,8 +66,11 @@ public class DriveSubsystem extends SubsystemBase {
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
 
+    
+
     driveOdometry = new DifferentialDriveOdometry(getGyroHeading(), leftLeaderEncoder.getPosition(),
-        rightFollowerEncoder.getPosition());
+        rightLeaderEncoder.getPosition());
+    // TODO: check if convertion is applied the rightway
 
     // set up differential drive class
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -85,11 +95,14 @@ public class DriveSubsystem extends SubsystemBase {
     // Set configuration to follow leader and then apply it to corresponding
     // follower. Resetting in case a new controller is swapped
     // in and persisting in case of a controller reset due to breaker trip
+    config.encoder.positionConversionFactor(Constants.DriveConstants.ConversionFactor);
+
     config.follow(leftLeader);
     config.inverted(true);
     leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.follow(rightLeader);
     rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
 
     // Remove following, then apply config to right leader
     config.inverted(false);
@@ -106,13 +119,17 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Rotation2d getGyroHeading() {
-
     return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+        rightLeaderEncoder.getPosition());
 
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+
+  }
 
   public void arcadeDrive(double xSpeed, double zRotation) {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
@@ -150,6 +167,7 @@ public class DriveSubsystem extends SubsystemBase {
         lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
+    // ChassisSpeeds to WheeleSpeeds /\
   }
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
@@ -159,7 +177,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
-    // TODO get chassis speed to wheelSpeed
+
   }
 
 
