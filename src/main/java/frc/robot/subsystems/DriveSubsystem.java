@@ -178,8 +178,8 @@ public class DriveSubsystem extends SubsystemBase {
   new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
   
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    @SuppressWarnings("unused")
-    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(robotRelativeSpeeds);
+    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, 0);
+
   }
 
   private static DriveSubsystem INSTANCE = null;
