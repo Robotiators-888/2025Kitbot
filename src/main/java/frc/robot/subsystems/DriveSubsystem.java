@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
+
 public class DriveSubsystem extends SubsystemBase {
 
   public StructPublisher<Pose2d> publisher =
@@ -131,6 +132,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void arcadeDrive(double xSpeed, double zRotation) {
+    
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
   }
 
@@ -160,14 +162,18 @@ public class DriveSubsystem extends SubsystemBase {
   public ChassisSpeeds getChassisSpeeds() {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
-    double rSpeedMPS =
-        rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
-    double lSpeedMPS =
-        lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+
+    double rSpeedMPS = rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+    double lSpeedMPS = lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+    
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
     // ChassisSpeeds to WheeleSpeeds /\
   }
+  public double getRate(double input) {
+    return  (input / Constants.DriveConstants.GEARRATIO) * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
+  } // may be needed /\ Current velocity is 8.1 m/s^2, probably should be lowered to 3 m/s^2
+
 
   public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
     driveRobotRelative(

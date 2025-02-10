@@ -19,7 +19,8 @@ public class AutoGenerator extends SubsystemBase {
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
       e.printStackTrace();
-      return;
+      throw new Error("robot config not loading");
+      //return;
     }
     AutoBuilder.configure(
         Drivetrain::getPose, // Robot pose supplier
