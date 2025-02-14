@@ -31,11 +31,13 @@ public final class Constants {
     public static final class Autonomous {
       public static final double kmaxAcceleration = 0.2;
       public static final double kDriveSpeed = 0.75; 
-      // or public static final double kmaxVelocity = 0.2;
-      //TODO find how to apply to autos
+      public static final double FreeSpeedMaxMotor = 5700; // sparkmaxconfig has a max rpm of 5700 rpm on rev robotics 
+      //RPM to M/: -> RPM / 60 , then multiply by the diameter TODO: convert truemaxspeed to m/s, shouldn't be above 10
+      // neo brushless free RPM: 5676, 
         // public static final double kmaxDriveSpeed = #.#; // driving underload in meters/second ^2, (Not max velocity, encodes motor torque)
         // with no testing, can find by taking 85% of the no load speed
       //TODO May need Moment of inertia for the robot
+    
     }
 
 
@@ -47,9 +49,15 @@ public final class Constants {
 
     public static final DifferentialDriveKinematics KDriveKinematics = new DifferentialDriveKinematics(kTrackWidth);
     public static final double kMaxSpeedMetersPerSecond = 0.0;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 0.0;   
-    //need max speed for autos
-    public static double speeds = 0.2;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 0.0;  
+    public static final double kDrivingMotorFreeSpeedRps = Autonomous.FreeSpeedMaxMotor / 60;// get 95 rpm
+
+    public static final double TrueMaxSpeed = 4845;// this is 85% of the free speed of the motors 
+    // could be 5700(.85) = 4845, or divide by 60 then .85 
+    // TODO: get correct true max speed default is 5.1 m/s, if this nummber works you can leave it
+    //  find friction coefficent, can be set low to decrease robot speed 
+
+    // public int getSmartCurrentRPMLimit();  may be needed 
     public static double wheelDiameterIN = 6;
     public static final double ConversionFactor = Units.inchesToMeters(wheelDiameterIN * Math.PI / GEARRATIO);
     // circumferance multiply by gearratio to find how far the robot has travelled. then converted to meters 
