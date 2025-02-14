@@ -54,6 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive;
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
+  Pose2d pose = new Pose2d();//just added this
 
   public DriveSubsystem() {
 
@@ -156,6 +157,8 @@ public class DriveSubsystem extends SubsystemBase {
     // zeroEncoders();
     driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
         rightLeaderEncoder.getPosition(), pose);
+    // code is telling itself that it is alredy where it is
+    this.pose = pose;
   }
 
 
