@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+//TODO: find outhow to shoot coral in autonomus
+
 public class AutoGenerator extends SubsystemBase {
   // public ChassisSpeeds java.util.function.Supplier.get()
   public static DriveSubsystem Drivetrain = DriveSubsystem.getInstance();
