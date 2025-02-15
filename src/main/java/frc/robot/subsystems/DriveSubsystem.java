@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.SysIdSwerveRotation;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,9 +24,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
@@ -34,6 +37,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   public StructPublisher<Pose2d> publisher =
       NetworkTableInstance.getDefault().getStructTopic("Odometry", Pose2d.struct).publish();
+  public StructPublisher<Pose2d> publisher2 =
+      NetworkTableInstance.getDefault().getStructTopic("resetpose", Pose2d.struct).publish();
   public SparkMax leftLeader;
   public SparkMax leftFollower;
   public SparkMax rightLeader;
@@ -54,7 +59,11 @@ public class DriveSubsystem extends SubsystemBase {
   private final DifferentialDrive drive;
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
-  Pose2d pose = new Pose2d();//just added this
+  public void setGyroRotation(double angleDegrees) {
+    navx.setAngleAdjustment(angleDegrees);
+  }
+
+  Pose2d pose = new Pose2d();
 
   public DriveSubsystem() {
 
@@ -68,12 +77,14 @@ public class DriveSubsystem extends SubsystemBase {
     rightLeaderEncoder = rightLeader.getEncoder();
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
+     
+    navx.setAngleAdjustment(180);
+    navx.getPitch();//or.getRoll or .getYaw  gets values between 180, -180
+    navx.getGyroFullScaleRangeDPS();// may be needed
 
-    driveOdometry = new DifferentialDriveOdometry(getGyroHeading(), leftLeaderEncoder.getPosition(),
-        rightLeaderEncoder.getPosition());
-    // TODO: check if convertion is applied the rightway
 
     // set up differential drive class
+    // public final Field2d m_field = new Field2d();
     drive = new DifferentialDrive(leftLeader, rightLeader);
 
     // Set can timeout. Because this project only sets parameters once on
@@ -106,34 +117,66 @@ public class DriveSubsystem extends SubsystemBase {
 
 
     // Remove following, then apply config to right leader
-    config.inverted(false);
+    config.inverted(true);
     config.disableFollowerMode();
     rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     // Set conifg to inverted and then apply to left leader. Set Left side inverted
     // so that postive values drive both sides forward
-    config.inverted(true);
+    config.inverted(false);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
         navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
-        new Pose2d(0, 0, new Rotation2d(0)));
+        new Pose2d()); // could do   Rotation2d.fromDegrees(getAngle())
+        // and do  new Pose2d(0, 0, new Rotation2d(0))
   }
+
+  // turnController.setInputRange(-180.0f,  180.0f);
+  // turnController.setOutputRange(-1.0, 1.0);
+  // could use this
+
+  // public void zeroHeading() {
+  //   navx.reset();
+  // }//
+//TODO find out why the robot is unable to turn in autos
+ 
+  // public float getFusedHeading() {
+ //can get degrees between 0 to 360
+ //}
+//  public void setAngleAdjustment​(double adjustment){
+// // uses values between 0 -360 to 360
+//  }
 
   public Rotation2d getGyroHeading() {
     return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
   }
 
+  public double getTurnRate() {
+    return navx.getRate() * (Constants.DriveConstants.Autonomous.kGyroReversed ? -1.0 : 1.0);
+  }// feed forward implicates to here
+
   @Override
   public void periodic() {
     m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
         rightLeaderEncoder.getPosition());
+        //could do Rotation2d.fromDegrees(getAngle()
 
     publisher.set(m_poseEstimator.getEstimatedPosition());
-
+    SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
   }
 
+
+
+
+  // public void setGyroRotation(double angleDegrees) {
+  //   navx.setAngleAdjustment(angleDegrees);
+  // }
+
+
+
+
   public void arcadeDrive(double xSpeed, double zRotation) {
-    
+
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
   }
 
@@ -145,20 +188,17 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return driveOdometry.getPoseMeters();
-  }
-
-  public void setPosition(Pose2d position) {
-    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
-        rightLeaderEncoder.getPosition(), position);
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   public void resetPose(Pose2d pose) {
-    // zeroEncoders();
-    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+    SmartDashboard.putBoolean("done?", true);
+    m_poseEstimator.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
         rightLeaderEncoder.getPosition(), pose);
     // code is telling itself that it is alredy where it is
+    publisher2.set(getPose());
     this.pose = pose;
+
   }
 
 
@@ -166,15 +206,19 @@ public class DriveSubsystem extends SubsystemBase {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
 
-    double rSpeedMPS = rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
-    double lSpeedMPS = lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
-    
+    double rSpeedMPS =
+        rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+    double lSpeedMPS =
+        lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
+
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
     // ChassisSpeeds to WheeleSpeeds /\
   }
+
   public double getRate(double input) {
-    return  (input / Constants.DriveConstants.GEARRATIO) * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
+    return (input / Constants.DriveConstants.GEARRATIO)
+        * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
   } // may be needed /\ Current velocity is 8.1 m/s^2, probably should be lowered to 3 m/s^2
 
 
@@ -184,8 +228,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   DifferentialDriveKinematics kinematics =
-  new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
-  
+      new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
+
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
     drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, 0);
 

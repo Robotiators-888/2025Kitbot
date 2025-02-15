@@ -37,6 +37,9 @@ public final class Constants {
         // public static final double kmaxDriveSpeed = #.#; // driving underload in meters/second ^2, (Not max velocity, encodes motor torque)
         // with no testing, can find by taking 85% of the no load speed
       //TODO May need Moment of inertia for the robot
+
+    public static final boolean kGyroReversed = true;
+    public static final double kGyroRotation = 0;
     
     }
 
