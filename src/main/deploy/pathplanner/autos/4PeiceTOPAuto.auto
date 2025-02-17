@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "REDmidReefPath"
+            "pathName": "REDtopReefPath"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "roller"
           }
         },
         {
@@ -23,15 +29,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "reveREDStatTOreefPath"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "REDStatTOreefPath"
+            "name": "roller"
           }
         },
         {
@@ -44,6 +44,30 @@
           "type": "path",
           "data": {
             "pathName": "REDStatTOreefPath"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "roller"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "reveREDStatTOreefPath"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "REDStatTOreefPath"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "roller"
           }
         }
       ]

@@ -5,12 +5,11 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.util.Units;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -28,6 +27,7 @@ import frc.robot.utils.AutoGenerator;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
 
   // The robot's subsystems
   public final static DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
@@ -53,6 +53,9 @@ public class RobotContainer {
     
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    NamedCommands.registerCommand("roller", Commands.runOnce(() -> driveSubsystem.arcadeDrive(0.7,0), driveSubsystem));
+    //new EventTrigger("something").onTrue(null);// can be used when needed
+    //TODO;could use commands and parallel comand groups to simulate turining for the kitbot
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with

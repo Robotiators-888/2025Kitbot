@@ -3,7 +3,6 @@
   "robotLength": 1.01092,
   "holonomicMode": false,
   "pathFolders": [
-    "need to fix Folder",
     "testpaths Folder"
   ],
   "autoFolders": [],

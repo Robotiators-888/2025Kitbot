@@ -5,7 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.SysIdSwerveRotation;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -13,22 +13,23 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
+import com.studica.frc.AHRS.NavXUpdateRate;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.Publisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
@@ -39,6 +40,11 @@ public class DriveSubsystem extends SubsystemBase {
       NetworkTableInstance.getDefault().getStructTopic("Odometry", Pose2d.struct).publish();
   public StructPublisher<Pose2d> publisher2 =
       NetworkTableInstance.getDefault().getStructTopic("resetpose", Pose2d.struct).publish();
+
+  public StructPublisher<Pose2d> publisher3 =
+      NetworkTableInstance.getDefault().getStructTopic("rightencoder", Pose2d.struct).publish();
+//publish right and left encoders
+
   public SparkMax leftLeader;
   public SparkMax leftFollower;
   public SparkMax rightLeader;
@@ -54,10 +60,11 @@ public class DriveSubsystem extends SubsystemBase {
 
   DifferentialDriveOdometry driveOdometry;
 
-
+  // SmartDashboard.putData(navx); // could be used
 
   private final DifferentialDrive drive;
-  private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+  private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI, AHRS.NavXUpdateRate.k50Hz);
+   //AHRS.NavXComType.setInputRange(-180,180);// find out how to use this seen set...range with PID
 
   public void setGyroRotation(double angleDegrees) {
     navx.setAngleAdjustment(angleDegrees);
@@ -66,7 +73,7 @@ public class DriveSubsystem extends SubsystemBase {
   Pose2d pose = new Pose2d();
 
   public DriveSubsystem() {
-
+    
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
@@ -79,9 +86,9 @@ public class DriveSubsystem extends SubsystemBase {
     rightFollowerEncoder = rightFollower.getEncoder();
      
     navx.setAngleAdjustment(180);
-    navx.getPitch();//or.getRoll or .getYaw  gets values between 180, -180
-    navx.getGyroFullScaleRangeDPS();// may be needed
-
+    SmartDashboard.putData(navx);
+    // navx.getPitch();//or.getRoll or .getYaw  gets values between 180, -180
+    // navx.getGyroFullScaleRangeDPS();// may be needed
 
     // set up differential drive class
     // public final Field2d m_field = new Field2d();
@@ -125,31 +132,43 @@ public class DriveSubsystem extends SubsystemBase {
     config.inverted(false);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    resetEncoders();
+
     m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
         navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
         new Pose2d()); // could do   Rotation2d.fromDegrees(getAngle())
-        // and do  new Pose2d(0, 0, new Rotation2d(0))
+        // and do  new Pose2d(0, 0, new Rotation2d(0))    
   }
 
-  // turnController.setInputRange(-180.0f,  180.0f);
-  // turnController.setOutputRange(-1.0, 1.0);
-  // could use this
+  //   public float setInputRange(){
+  //     AHRS.NavXComType.setInputRange(-180.0f, 180.0f);//not defined for NavxCommtype
+  //   }// turnController.setInputRange(-180.0f,  180.0f);
 
-  // public void zeroHeading() {
-  //   navx.reset();
-  // }//
-//TODO find out why the robot is unable to turn in autos
- 
-  // public float getFusedHeading() {
- //can get degrees between 0 to 360
- //}
-//  public void setAngleAdjustment​(double adjustment){
-// // uses values between 0 -360 to 360
-//  }
+  // //TODO find out why these commands are undefined with float for AHRS.NavXCOMYype /\, \/
 
-  public Rotation2d getGyroHeading() {
-    return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
+  //   public void setOutputRange(){
+  //     AHRS.NavXComType.setOutputRange(-1.0f, 1.0f);//not defined for NavxCommtype
+  //   }  // turnController.setOutputRange(-1.0, 1.0);
+
+    public void resetEncoders() {
+      rightLeaderEncoder.setPosition(0);
+      rightFollowerEncoder.setPosition(0);
+      leftLeaderEncoder.setPosition(0);
+      leftFollowerEncoder.setPosition(0);
+    }// the followers may not be nessary
+
+  public void zeroHeading() {
+    navx.reset();
+    navx.isCalibrating();
   }
+
+  public static double getGyroHeading() {
+    return navx.getRotation2d().getDegrees();
+  }
+//may want to use \/ if nessary
+  // public Rotation2d getGyroHeading() {
+  //   return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
+  // }
 
   public double getTurnRate() {
     return navx.getRate() * (Constants.DriveConstants.Autonomous.kGyroReversed ? -1.0 : 1.0);
@@ -159,21 +178,15 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
         rightLeaderEncoder.getPosition());
-        //could do Rotation2d.fromDegrees(getAngle()
 
     publisher.set(m_poseEstimator.getEstimatedPosition());
     SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
+    SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
+    SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
+    SmartDashboard.putNumber("turnRate", getTurnRate());
+    SmartDashboard.putNumber("AverageEncoderPos", averageEncoderPosition());
+    SmartDashboard.putNumber("gyroHeading", getGyroHeading());
   }
-
-
-
-
-  // public void setGyroRotation(double angleDegrees) {
-  //   navx.setAngleAdjustment(angleDegrees);
-  // }
-
-
-
 
   public void arcadeDrive(double xSpeed, double zRotation) {
 
@@ -187,9 +200,33 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
+//  public void calculateRobotRelativeSpeeds(){
+// //needs currentPose and targetstate. may not be needed
+//  }
+
+  public double getrightLeaderEncoder() {
+    return rightLeaderEncoder.getPosition();
+  }
+
+  public double getleftLeaderEncoder() {
+    return leftLeaderEncoder.getPosition();
+  }
+
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
   }
+
+  public double averageEncoderPosition() {
+    return (getrightLeaderEncoder() + getleftLeaderEncoder()/2);
+  }
+
+  public RelativeEncoder getrightEncoder() {
+    return getrightEncoder();
+  }
+
+  public RelativeEncoder getleftEncoder() {
+    return getleftEncoder();
+  }//hopeful uses the right encoders
 
   public void resetPose(Pose2d pose) {
     SmartDashboard.putBoolean("done?", true);
@@ -198,14 +235,16 @@ public class DriveSubsystem extends SubsystemBase {
     // code is telling itself that it is alredy where it is
     publisher2.set(getPose());
     this.pose = pose;
+  } 
 
-  }
-
+  public NavXComType getgyro(){
+    return getgyro();
+  }//check if this works
 
   public ChassisSpeeds getChassisSpeeds() {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
-
+    
     double rSpeedMPS =
         rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
     double lSpeedMPS =
