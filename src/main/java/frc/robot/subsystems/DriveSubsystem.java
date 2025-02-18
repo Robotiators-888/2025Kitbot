@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -14,7 +13,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-import com.studica.frc.AHRS.NavXUpdateRate;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -23,7 +21,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.Publisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -270,7 +267,7 @@ public class DriveSubsystem extends SubsystemBase {
       new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, 0);
+    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.omegaRadiansPerSecond);
 
   }
 
