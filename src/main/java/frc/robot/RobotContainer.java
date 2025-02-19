@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
+import frc.robot.commands.Spinny_Auto;
 import frc.robot.subsystems.CANRollerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.AutoGenerator;
@@ -47,13 +48,14 @@ public class RobotContainer {
    */
   public RobotContainer() {
 
-    // autoChooser.addOption("Next Auto", new );
+    // autoChooser.addOption("Next Auto", new ); 
 
     configureBindings();
-    
+
+    NamedCommands.registerCommand("Drive", new InstantCommand(() -> driveSubsystem.arcadeDrive(0,0.2), driveSubsystem));
+    NamedCommands.registerCommand("wow", rollerSubsystem.setrollerCommand(Constants.DriveConstants.speed));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    NamedCommands.registerCommand("roller", Commands.runOnce(() -> driveSubsystem.arcadeDrive(0.7,0), driveSubsystem));
     //new EventTrigger("something").onTrue(null);// can be used when needed
     //TODO;could use commands and parallel comand groups to simulate turining for the kitbot
 

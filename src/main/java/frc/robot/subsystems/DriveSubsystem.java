@@ -13,6 +13,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -185,8 +187,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("gyroHeading", getGyroHeading());
   }
 
-  public void arcadeDrive(double xSpeed, double zRotation) {
-
+  public void sarcadeDrive(double xSpeed, double zRotation) {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
   }
 
@@ -200,6 +201,7 @@ public class DriveSubsystem extends SubsystemBase {
 //  public void calculateRobotRelativeSpeeds(){
 // //needs currentPose and targetstate. may not be needed
 //  }
+
 
   public double getrightLeaderEncoder() {
     return rightLeaderEncoder.getPosition();
@@ -267,7 +269,7 @@ public class DriveSubsystem extends SubsystemBase {
       new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.omegaRadiansPerSecond);
+    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, -(robotRelativeSpeeds.omegaRadiansPerSecond)/2*Math.PI);
 
   }
 

@@ -4,10 +4,12 @@
 
 package frc.robot.subsystems;
 
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RollerConstants;
 
@@ -34,6 +36,11 @@ public class CANRollerSubsystem extends SubsystemBase {
   public void spinRoller(double speed) {
     rollerMotor.set(ControlMode.PercentOutput, speed);
   }
+
+  public Command setrollerCommand(double speed) {
+    return run(() -> rollerMotor.set(ControlMode.PercentOutput, speed));
+  }
+
 
   public void rollerChange(double changeamount) {
     Roller_Trigger_Speed = MathUtil.clamp(Roller_Trigger_Speed + changeamount, 0, 0.5);

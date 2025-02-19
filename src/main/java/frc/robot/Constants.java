@@ -27,6 +27,7 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 22;
     public static final int RIGHT_FOLLOWER_ID = 23;
     public static final double GEARRATIO = 10.86; //gear ratio from output shaft of motor to wheel axle
+    public static final double speed = 0.2;
     
     public static final class Autonomous {
       public static final double kmaxAcceleration = 0.2;
