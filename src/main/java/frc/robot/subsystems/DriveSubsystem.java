@@ -14,7 +14,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -251,7 +250,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
-    // ChassisSpeeds to WheeleSpeeds /\
+    // ChassisSpeeds to WheeleSpeeds /\ //TODO put lspeedmps and rspeedmps on shuffleboard
+    
+
   }
 
   public double getRate(double input) {
@@ -266,12 +267,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   DifferentialDriveKinematics kinematics =
-      new DifferentialDriveKinematics(Units.inchesToMeters(27.0));
+      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, -(robotRelativeSpeeds.omegaRadiansPerSecond)/2*Math.PI);
-
-  }
+    drive.arcadeDrive((robotRelativeSpeeds.vxMetersPerSecond/5), -(robotRelativeSpeeds.omegaRadiansPerSecond/2*Math.PI)); 
+  } 
 
   private static DriveSubsystem INSTANCE = null;
 
