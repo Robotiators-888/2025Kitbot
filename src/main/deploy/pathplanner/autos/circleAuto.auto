@@ -9,6 +9,12 @@
           "data": {
             "pathName": "u Path"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "wow"
+          }
         }
       ]
     }

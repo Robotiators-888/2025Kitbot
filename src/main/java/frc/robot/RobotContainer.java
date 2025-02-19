@@ -52,7 +52,7 @@ public class RobotContainer {
 
     configureBindings();
 
-    NamedCommands.registerCommand("Drive", new InstantCommand(() -> driveSubsystem.arcadeDrive(0,0.2), driveSubsystem));
+    NamedCommands.registerCommand("Drive", new InstantCommand(() -> driveSubsystem.sarcadeDrive(0,0.2), driveSubsystem));
     NamedCommands.registerCommand("wow", rollerSubsystem.setrollerCommand(Constants.DriveConstants.speed));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
