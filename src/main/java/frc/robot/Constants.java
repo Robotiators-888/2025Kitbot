@@ -63,7 +63,7 @@ public final class Constants {
 
     // public int getSmartCurrentRPMLimit();  may be needed 
     public static double wheelDiameterIN = 6;
-    public static final double ConversionFactor = Units.inchesToMeters(wheelDiameterIN * Math.PI / GEARRATIO);
+    public static final double ConversionFactor = Units.inchesToMeters(wheelDiameterIN)* Math.PI / GEARRATIO;
     // circumferance multiply by gearratio to find how far the robot has travelled. then converted to meters 
     //convertion over or convertion multiply
  

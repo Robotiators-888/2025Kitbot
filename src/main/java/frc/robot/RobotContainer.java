@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
+import frc.robot.commands.TestAuto;
 import frc.robot.subsystems.CANRollerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.AutoGenerator;
@@ -108,9 +109,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return new TestAuto();
   }
-
 
 }
 

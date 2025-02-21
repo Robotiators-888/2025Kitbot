@@ -41,7 +41,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public StructPublisher<Pose2d> publisher3 =
       NetworkTableInstance.getDefault().getStructTopic("rightencoder", Pose2d.struct).publish();
-//publish right and left encoders
+  // publish right and left encoders
 
   public SparkMax leftLeader;
   public SparkMax leftFollower;
@@ -62,7 +62,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final DifferentialDrive drive;
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI, AHRS.NavXUpdateRate.k50Hz);
-   //AHRS.NavXComType.setInputRange(-180,180);// find out how to use this seen set...range with PID
+  // AHRS.NavXComType.setInputRange(-180,180);// find out how to use this seen set...range with PID
 
   public void setGyroRotation(double angleDegrees) {
     navx.setAngleAdjustment(angleDegrees);
@@ -71,7 +71,7 @@ public class DriveSubsystem extends SubsystemBase {
   Pose2d pose = new Pose2d();
 
   public DriveSubsystem() {
-    
+
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
@@ -82,10 +82,10 @@ public class DriveSubsystem extends SubsystemBase {
     rightLeaderEncoder = rightLeader.getEncoder();
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
-     
+
     navx.setAngleAdjustment(180);
     SmartDashboard.putData(navx);
-    // navx.getPitch();//or.getRoll or .getYaw  gets values between 180, -180
+    // navx.getPitch();//or.getRoll or .getYaw gets values between 180, -180
     // navx.getGyroFullScaleRangeDPS();// may be needed
 
     // set up differential drive class
@@ -134,26 +134,26 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
         navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
-        new Pose2d()); // could do   Rotation2d.fromDegrees(getAngle())
-        // and do  new Pose2d(0, 0, new Rotation2d(0))    
+        new Pose2d()); // could do Rotation2d.fromDegrees(getAngle())
+    // and do new Pose2d(0, 0, new Rotation2d(0))
   }
 
-  //   public float setInputRange(){
-  //     AHRS.NavXComType.setInputRange(-180.0f, 180.0f);//not defined for NavxCommtype
-  //   }// turnController.setInputRange(-180.0f,  180.0f);
+  // public float setInputRange(){
+  // AHRS.NavXComType.setInputRange(-180.0f, 180.0f);//not defined for NavxCommtype
+  // }// turnController.setInputRange(-180.0f, 180.0f);
 
   // //TODO find out why these commands are undefined with float for AHRS.NavXCOMYype /\, \/
 
-  //   public void setOutputRange(){
-  //     AHRS.NavXComType.setOutputRange(-1.0f, 1.0f);//not defined for NavxCommtype
-  //   }  // turnController.setOutputRange(-1.0, 1.0);
+  // public void setOutputRange(){
+  // AHRS.NavXComType.setOutputRange(-1.0f, 1.0f);//not defined for NavxCommtype
+  // } // turnController.setOutputRange(-1.0, 1.0);
 
-    public void resetEncoders() {
-      rightLeaderEncoder.setPosition(0);
-      rightFollowerEncoder.setPosition(0);
-      leftLeaderEncoder.setPosition(0);
-      leftFollowerEncoder.setPosition(0);
-    }// the followers may not be nessary
+  public void resetEncoders() {
+    rightLeaderEncoder.setPosition(0);
+    rightFollowerEncoder.setPosition(0);
+    leftLeaderEncoder.setPosition(0);
+    leftFollowerEncoder.setPosition(0);
+  }// the followers may not be nessary
 
   public void zeroHeading() {
     navx.reset();
@@ -163,9 +163,9 @@ public class DriveSubsystem extends SubsystemBase {
   public static double getGyroHeading() {
     return navx.getRotation2d().getDegrees();
   }
-//may want to use \/ if nessary
+  // may want to use \/ if nessary
   // public Rotation2d getGyroHeading() {
-  //   return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
+  // return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
   // }
 
   public double getTurnRate() {
@@ -197,9 +197,9 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
-//  public void calculateRobotRelativeSpeeds(){
-// //needs currentPose and targetstate. may not be needed
-//  }
+  // public void calculateRobotRelativeSpeeds(){
+  // //needs currentPose and targetstate. may not be needed
+  // }
 
 
   public double getrightLeaderEncoder() {
@@ -215,7 +215,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double averageEncoderPosition() {
-    return (getrightLeaderEncoder() + getleftLeaderEncoder()/2);
+    return (getrightLeaderEncoder() + getleftLeaderEncoder() / 2);
   }
 
   public RelativeEncoder getrightEncoder() {
@@ -224,7 +224,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public RelativeEncoder getleftEncoder() {
     return getleftEncoder();
-  }//hopeful uses the right encoders
+  }// hopeful uses the right encoders
 
   public void resetPose(Pose2d pose) {
     SmartDashboard.putBoolean("done?", true);
@@ -233,45 +233,47 @@ public class DriveSubsystem extends SubsystemBase {
     // code is telling itself that it is alredy where it is
     publisher2.set(getPose());
     this.pose = pose;
-  } 
+  }
 
-  public NavXComType getgyro(){
+  public NavXComType getgyro() {
     return getgyro();
-  }//check if this works
+  }// check if this works
 
   public ChassisSpeeds getChassisSpeeds() {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
-    
-    double rSpeedMPS =
-        rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
-    double lSpeedMPS =
-        lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60;
 
+    double rSpeedMPS = (rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    double lSpeedMPS = (lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    SmartDashboard.putNumber("LM", lSpeedMPS);
+    SmartDashboard.putNumber("RM", rSpeedMPS);
+    SmartDashboard.putNumber("LR", lSpeedRPM);
+    SmartDashboard.putNumber("RR", rSpeedRPM);
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
     // ChassisSpeeds to WheeleSpeeds /\ //TODO put lspeedmps and rspeedmps on shuffleboard
-    
 
   }
 
-  public double getRate(double input) {
-    return (input / Constants.DriveConstants.GEARRATIO)
-        * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
-  } // may be needed /\ Current velocity is 8.1 m/s^2, probably should be lowered to 3 m/s^2
+  // public double getRate(double input) {
+  // return (input / Constants.DriveConstants.GEARRATIO)
+  // * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
+  // } // may be needed /\ Current velocity is 8.1 m/s^2, probably should be lowered to 3 m/s^2
 
 
-  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-    driveRobotRelative(
-        ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-  }
+  // public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+  // driveRobotRelative(
+  // ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
+  // }// may want to delete
 
   DifferentialDriveKinematics kinematics =
-      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as velocity
+      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
+                                                                   // velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive((robotRelativeSpeeds.vxMetersPerSecond/5), -(robotRelativeSpeeds.omegaRadiansPerSecond/2*Math.PI)); 
-  } 
+    drive.arcadeDrive((robotRelativeSpeeds.vxMetersPerSecond / 5),
+        -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
+  }
 
   private static DriveSubsystem INSTANCE = null;
 
