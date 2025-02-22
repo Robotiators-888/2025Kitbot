@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,10 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.Autonomous.RollerConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Spinny_Auto;
-// import frc.robot.commands.Autos; <- got mad at this
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.CANRollerSubsystem;
 
@@ -30,6 +29,8 @@ public class RobotContainer {
   // The robot's subsystems
   public final static DriveSubsystem driveSubsystem = new DriveSubsystem();
   public final static CANRollerSubsystem rollerSubsystem = new CANRollerSubsystem();
+  private final SendableChooser<Command> autoChooser;
+
 
   // The driver's controller
   private final CommandXboxController driverController =
@@ -37,17 +38,21 @@ public class RobotContainer {
 
 
   // The autonomous chooser
-  public final SendableChooser<Command> autoChooser = new SendableChooser<>();
+  //public final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    SmartDashboard.putData("AutoSelector", autoChooser);
-    autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
+    // SmartDashboard.putData("AutoSelector", autoChooser);
+    // autoChooser.setDefaultOption("Spinny Auto", new Spinny_Auto());
     // autoChooser.addOption("Next Auto", new );
 
     configureBindings();
+     NamedCommands.registerCommand("Drive", new InstantCommand(() -> driveSubsystem.ARcadeDrive(0,0.2), driveSubsystem));
+     NamedCommands.registerCommand("wow", new InstantCommand(()-> rollerSubsystem.spinRoller(0.5)));
+     autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     // Set the options to show up in the Dashboard for selecting auto modes. If you
     // add additional auto modes you can add additional lines here with
@@ -73,7 +78,7 @@ public class RobotContainer {
     // Set the A button to run the "runRoller" command from the factory with a fixed
     // value ejecting the gamepiece while the button is held
     driverController.a()
-        .whileTrue(new RunCommand (() -> rollerSubsystem.spinRoller(RollerConstants.ROLLER_EJECT_VALUE)));
+        .whileTrue(new RunCommand (() -> rollerSubsystem.spinRoller(Constants.RollerConstants.ROLLER_EJECT_VALUE)));
 
     driverController.x().onTrue(new InstantCommand(()->rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
 

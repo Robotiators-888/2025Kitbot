@@ -19,8 +19,8 @@ public class Spinny_Auto extends SequentialCommandGroup {
     CANRollerSubsystem rollerSubsystem = RobotContainer.rollerSubsystem;
     Command spinRoller = Commands.run(() -> rollerSubsystem.spinRoller(0.5),rollerSubsystem);
     Command stopRoller = Commands.run(() -> rollerSubsystem.spinRoller(0), rollerSubsystem);
-    Command arcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0.25), driveSubsystem);
-    Command stopArcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0,0), driveSubsystem); 
+    Command arcadeDrive = Commands.run(() -> driveSubsystem.ARcadeDrive(0,0.25), driveSubsystem);
+    Command stopArcadeDrive = Commands.run(() -> driveSubsystem.ARcadeDrive(0,0), driveSubsystem); 
 
     addCommands(
     new ParallelCommandGroup(

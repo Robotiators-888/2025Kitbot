@@ -10,7 +10,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Autonomous.RollerConstants;
+import frc.robot.Constants;
 
 /** Class to run the rollers over CAN */
 public class CANRollerSubsystem extends SubsystemBase {
@@ -20,13 +20,13 @@ public class CANRollerSubsystem extends SubsystemBase {
 
   public CANRollerSubsystem() {
     // Set up the roller motor as a brushed motor
-    rollerMotor = new TalonSRX(RollerConstants.ROLLER_MOTOR_ID);
+    rollerMotor = new TalonSRX(Constants.RollerConstants.ROLLER_MOTOR_ID);
 
     // Create and apply configuration for roller motor. Voltage compensation helps
     // the roller behave the same as the battery
     // voltage dips. The current limit helps prevent breaker trips or burning out
     // the motor in the event the roller stalls.
-    rollerMotor.configPeakCurrentLimit(RollerConstants.ROLLER_MOTOR_CURRENT_LIMIT);
+    rollerMotor.configPeakCurrentLimit(Constants.RollerConstants.ROLLER_MOTOR_CURRENT_LIMIT);
   }
 
   @Override
