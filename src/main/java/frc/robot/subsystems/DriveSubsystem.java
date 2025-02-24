@@ -197,11 +197,6 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
-  // public void calculateRobotRelativeSpeeds(){
-  // //needs currentPose and targetstate. may not be needed
-  // }
-
-
   public double getrightLeaderEncoder() {
     return rightLeaderEncoder.getPosition();
   }
@@ -245,6 +240,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     double rSpeedMPS = (rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
     double lSpeedMPS = (lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    // speedRPM * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
     SmartDashboard.putNumber("LM", lSpeedMPS);
     SmartDashboard.putNumber("RM", rSpeedMPS);
     SmartDashboard.putNumber("LR", lSpeedRPM);
