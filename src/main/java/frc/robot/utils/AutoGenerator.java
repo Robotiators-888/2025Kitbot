@@ -1,9 +1,8 @@
 package frc.robot.utils;
 
 import frc.robot.subsystems.DriveSubsystem;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PPLTVController;
 //import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,10 +28,7 @@ public class AutoGenerator extends SubsystemBase {
         Drivetrain::resetPose, // Method to reset odometry (will be called if your auto has starting pose)
         Drivetrain::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         (speeds, feedforwards) -> Drivetrain.driveRobotRelative(speeds),
-        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(1.5, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(1.5, 0.0, 0.0) // Rotation PID constants
-            ),
+        new PPLTVController(0.02),
             config, // The robot configuration
             () -> {
               var alliance = DriverStation.getAlliance();
