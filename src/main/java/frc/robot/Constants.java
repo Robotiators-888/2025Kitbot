@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 
 
@@ -28,6 +31,9 @@ public final class Constants {
     public static final int RIGHT_FOLLOWER_ID = 23;
     public static final double GEARRATIO = 10.86; //gear ratio from output shaft of motor to wheel axle
     public static final double speed = 0.2; //wheel speeds percentage
+
+      public static final IdleMode kDrivingMotorIdleMode = IdleMode.kCoast;
+      public static final IdleMode kTurningMotorIdleMode = IdleMode.kCoast;
     
     public static final class Autonomous {
       public static final double kmaxAcceleration = 0.2;
@@ -41,6 +47,19 @@ public final class Constants {
 
     public static final boolean kGyroReversed = true;
     public static final double kGyroRotation = 0;
+    public static ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.5, 0, 0.5);
+  
+    DifferentialDriveWheelSpeeds wheelSpeeds = KDriveKinematics.toWheelSpeeds(chassisSpeeds);
+    double leftVelocity = wheelSpeeds.leftMetersPerSecond;
+    double rightVelocity = wheelSpeeds.rightMetersPerSecond;
+    // /\ this is for converting chassis speeds to wheel speeds
+  
+    public static double Speeds = 0.3;   
+    public static final double MaxMotorspeedRPM = 6000;
+    
+  
+    public static final DifferentialDriveKinematics KDriveKinematics =
+     new DifferentialDriveKinematics(kTrackWidth);
     
     }
 
