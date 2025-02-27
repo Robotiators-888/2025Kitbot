@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -64,10 +63,6 @@ public class DriveSubsystem extends SubsystemBase {
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI, AHRS.NavXUpdateRate.k50Hz);
   // AHRS.NavXComType.setInputRange(-180,180);// find out how to use this seen set...range with PID
 
-  public void setGyroRotation(double angleDegrees) {
-    navx.setAngleAdjustment(angleDegrees);
-  }
-
   Pose2d pose = new Pose2d();
 
   public DriveSubsystem() {
@@ -85,9 +80,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     navx.setAngleAdjustment(180);
     SmartDashboard.putData(navx);
-    // navx.getPitch();//or.getRoll or .getYaw gets values between 180, -180
-    // navx.getGyroFullScaleRangeDPS();// may be needed
-
     // set up differential drive class
     // public final Field2d m_field = new Field2d();
     drive = new DifferentialDrive(leftLeader, rightLeader);
@@ -114,12 +106,13 @@ public class DriveSubsystem extends SubsystemBase {
     // in and persisting in case of a controller reset due to breaker trip
     config.encoder.positionConversionFactor(Constants.DriveConstants.ConversionFactor);
 
+    
     config.follow(leftLeader);
     config.inverted(true);
+
     leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.follow(rightLeader);
     rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
 
     // Remove following, then apply config to right leader
     config.inverted(true);
@@ -131,22 +124,14 @@ public class DriveSubsystem extends SubsystemBase {
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     resetEncoders();
+    zeroHeading();
+
 
     m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
         navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
         new Pose2d()); // could do Rotation2d.fromDegrees(getAngle())
     // and do new Pose2d(0, 0, new Rotation2d(0))
   }
-
-  // public float setInputRange(){
-  // AHRS.NavXComType.setInputRange(-180.0f, 180.0f);//not defined for NavxCommtype
-  // }// turnController.setInputRange(-180.0f, 180.0f);
-
-  // //TODO find out why these commands are undefined with float for AHRS.NavXCOMYype /\, \/
-
-  // public void setOutputRange(){
-  // AHRS.NavXComType.setOutputRange(-1.0f, 1.0f);//not defined for NavxCommtype
-  // } // turnController.setOutputRange(-1.0, 1.0);
 
   public void resetEncoders() {
     rightLeaderEncoder.setPosition(0);
@@ -182,7 +167,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
     SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
     SmartDashboard.putNumber("turnRate", getTurnRate());
-    SmartDashboard.putNumber("AverageEncoderPos", averageEncoderPosition());
     SmartDashboard.putNumber("gyroHeading", getGyroHeading());
   }
 
@@ -207,10 +191,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
-  }
-
-  public double averageEncoderPosition() {
-    return (getrightLeaderEncoder() + getleftLeaderEncoder() / 2);
   }
 
   public RelativeEncoder getrightEncoder() {
@@ -238,8 +218,10 @@ public class DriveSubsystem extends SubsystemBase {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
 
-    double rSpeedMPS = (rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
-    double lSpeedMPS = (lSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    double rSpeedMPS = (rSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
+    //                       according to the getrate in 2023 /\.  The math here gets 4.4 meters persecond, when the rpm is 6000
+    // what was used -> (rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    double lSpeedMPS = (lSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
     // speedRPM * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
     SmartDashboard.putNumber("LM", lSpeedMPS);
     SmartDashboard.putNumber("RM", rSpeedMPS);
@@ -251,25 +233,26 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
-  // public double getRate(double input) {
-  // return (input / Constants.DriveConstants.GEARRATIO)
-  // * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
-  // } // may be needed /\ Current velocity is 8.1 m/s^2, probably should be lowered to 3 m/s^2
+  // public DifferentialDriveWheelSpeeds getWheelSpeeds(){
+  //   double leftSpeedMPS = leftLeaderEncoder.getVelocity() * 1/Constants.DriveConstants.GEARRATIO * Constants.DriveConstants.wheelDiameterIN;
+  //   double rightSpeedMPS = rightLeaderEncoder.getVelocity() * 1/Constants.DriveConstants.GEARRATIO * Constants.DriveConstants.wheelDiameterIN;
+  //   return new DifferentialDriveWheelSpeeds(leftSpeedMPS, rightSpeedMPS);
+  // }  // may want to use
 
-
-  // public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-  // driveRobotRelative(
-  // ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-  // }// may want to delete
+  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+  driveRobotRelative(
+  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
+  }
 
   DifferentialDriveKinematics kinematics =
       new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
                                                                    // velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive((robotRelativeSpeeds.vxMetersPerSecond / 5),
-        -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
-  }
+    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, (robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
+      //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
+  }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
+  //track radius
 
   private static DriveSubsystem INSTANCE = null;
 

@@ -20,7 +20,6 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.AutoGenerator;
 
 
-// use this site https://github.com/CardinalDynamics/2024Crescendo_RexV2/blob/Offseason-Branch/src/main/java/frc/robot/Constants.java 
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a

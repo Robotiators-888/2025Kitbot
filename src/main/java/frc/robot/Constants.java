@@ -63,7 +63,6 @@ public final class Constants {
     
     }
 
-
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
      //chasse config
     public static final double kTrackWidth = Units.inchesToMeters(25);

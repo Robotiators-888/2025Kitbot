@@ -29,7 +29,7 @@ public class AutoGenerator extends SubsystemBase {
         Drivetrain::resetPose, // Method to reset odometry (will be called if your auto has starting pose)
         Drivetrain::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         (speeds, feedforwards) -> Drivetrain.driveRobotRelative(speeds),
-        new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+        new PPLTVController(0.02, 0.5), // PPLTVController is the built in path following controller for differential drive trains
             config,  // The robot configuration
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
