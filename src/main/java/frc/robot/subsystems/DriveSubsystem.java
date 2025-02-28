@@ -130,7 +130,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
         navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
         new Pose2d()); // could do Rotation2d.fromDegrees(getAngle())
-    // and do new Pose2d(0, 0, new Rotation2d(0))
+    // and do new Pose2d(0, 0, new Rotation2d(0)
+
   }
 
   public void resetEncoders() {
@@ -249,7 +250,15 @@ public class DriveSubsystem extends SubsystemBase {
                                                                    // velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    drive.arcadeDrive(robotRelativeSpeeds.vxMetersPerSecond, (robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
+    var wheelSpeeds = new DifferentialDriveWheelSpeeds(2.0, 2.0);
+    // Convert to chassis speeds.
+    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+    // Linear velocity
+    double linearVelocity = chassisSpeeds.vxMetersPerSecond;
+    // Angular velocity
+    double angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
+
+    drive.arcadeDrive(linearVelocity, (angularVelocity / 2 * Math.PI));
       //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
   }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
   //track radius

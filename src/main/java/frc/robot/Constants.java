@@ -99,5 +99,15 @@ public final class Constants {
     public static final int OPERATOR_CONTROLLER_PORT = 1;
   }
 
+// public static final class velocity {
+//   ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+//   // Linear velocity
+//   double linearVelocity = chassisSpeeds.vxMetersPerSecond;
+//   // Angular velocity
+//   double angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
+  
+  
+// }
+
 
 }
