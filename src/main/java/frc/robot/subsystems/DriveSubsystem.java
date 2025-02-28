@@ -230,7 +230,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("RR", rSpeedRPM);
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
-    // ChassisSpeeds to WheeleSpeeds /\ //TODO put lspeedmps and rspeedmps on shuffleboard
+    // ChassisSpeeds to WheeleSpeeds /\ //TODO find out why the returned speed doesn't change anything
 
   }
 
