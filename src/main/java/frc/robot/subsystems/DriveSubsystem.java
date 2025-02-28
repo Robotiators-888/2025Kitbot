@@ -78,7 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
     leftFollowerEncoder = leftFollower.getEncoder();
     rightFollowerEncoder = rightFollower.getEncoder();
 
-    navx.setAngleAdjustment(180);
+    navx.setAngleAdjustment(0);
     SmartDashboard.putData(navx);
     // set up differential drive class
     // public final Field2d m_field = new Field2d();
@@ -254,7 +254,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Convert to chassis speeds.
     ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
     // Linear velocity
-    double linearVelocity = chassisSpeeds.vxMetersPerSecond;
+    double linearVelocity = 0.25;// chassisSpeeds.vxMetersPerSecond;
     // Angular velocity
     double angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
 
