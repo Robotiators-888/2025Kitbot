@@ -221,7 +221,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     double rSpeedMPS = (rSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
     //                       according to the getrate in 2023 /\.  The math here gets 4.4 meters persecond, when the rpm is 6000
-    // what was used -> (rSpeedRPM * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    //((rSpeedRPM/Constants.DriveConstants.GEARRATIO) * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
+    // /\ can't work with path planner gets a linear velocity that is too slow
+    // what was used -> ((rSpeedRPMConstants.DriveConstants.GEARRATIO/) * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
     double lSpeedMPS = (lSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
     // speedRPM * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
     SmartDashboard.putNumber("LM", lSpeedMPS);
@@ -250,17 +252,21 @@ public class DriveSubsystem extends SubsystemBase {
                                                                    // velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-      // var wheelSpeeds = new DifferentialDriveWheelSpeeds(2.0, 2.0);
+      var wheelSpeeds = new DifferentialDriveWheelSpeeds(0.5, 0.5);
     // Convert to chassis speeds.
-        //ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
-    // Linear velocity
-    double linearVelocity = 0.25;// chassisSpeeds.vxMetersPerSecond;
-    // Angular velocity
+      ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+    // Linear velocity,  pi * diameter * angular velocity, or v = v - /2
+    double linearVelocity = chassisSpeeds.vxMetersPerSecond/2;
+    SmartDashboard.putNumber("linear", linearVelocity);
+    // Angular velocity   
     double angularVelocity =   0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
+    SmartDashboard.putNumber("angular", angularVelocity);
 
     drive.arcadeDrive(linearVelocity, angularVelocity);
       //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
   }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
+
+  //ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02); possibly
   //track radius
 
   private static DriveSubsystem INSTANCE = null;
