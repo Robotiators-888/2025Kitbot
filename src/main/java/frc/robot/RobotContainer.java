@@ -52,9 +52,10 @@ public class RobotContainer {
 
     configureBindings();
 
-    NamedCommands.registerCommand("Drive",
+    NamedCommands.registerCommand("TURN",
         new InstantCommand(() -> driveSubsystem.sarcadeDrive(0, 0.2), driveSubsystem));
-    NamedCommands.registerCommand("wow", rollerSubsystem.setrollerCommand(Constants.DriveConstants.speed));
+    NamedCommands.registerCommand("Spin", rollerSubsystem.setrollerCommand(Constants.DriveConstants.speed).withTimeout(1.0));
+    NamedCommands.registerCommand("stopSpin", rollerSubsystem.setrollerCommand(0));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     // new EventTrigger("something").onTrue(null);// can be used when needed

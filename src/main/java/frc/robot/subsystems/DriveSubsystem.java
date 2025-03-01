@@ -250,15 +250,15 @@ public class DriveSubsystem extends SubsystemBase {
                                                                    // velocity
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-    var wheelSpeeds = new DifferentialDriveWheelSpeeds(2.0, 2.0);
+      // var wheelSpeeds = new DifferentialDriveWheelSpeeds(2.0, 2.0);
     // Convert to chassis speeds.
-    ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+        //ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
     // Linear velocity
     double linearVelocity = 0.25;// chassisSpeeds.vxMetersPerSecond;
     // Angular velocity
-    double angularVelocity = chassisSpeeds.omegaRadiansPerSecond;
+    double angularVelocity =   0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
 
-    drive.arcadeDrive(linearVelocity, (angularVelocity / 2 * Math.PI));
+    drive.arcadeDrive(linearVelocity, angularVelocity);
       //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
   }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
   //track radius
