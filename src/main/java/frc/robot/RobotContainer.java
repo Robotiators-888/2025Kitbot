@@ -17,6 +17,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.CANRollerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.SUB_LEDs;
+import frc.robot.subsystems.SUB_LEDs.BlinkinPattern;
 import frc.robot.utils.AutoGenerator;
 
 
@@ -86,11 +88,12 @@ public class RobotContainer {
   private void configureBindings() {
     // Set the A button to run the "runRoller" command from the factory with a fixed
     // value ejecting the gamepiece while the button is held
+
     driverController.a().whileTrue(
-        new RunCommand(() -> rollerSubsystem.spinRoller(RollerConstants.ROLLER_EJECT_VALUE)));
+        new RunCommand(() -> SUB_LEDs.ledValue = BlinkinPattern.RAINBOW_RAINBOW_PALETTE.value));
 
     driverController.x()
-        .onTrue(new InstantCommand(() -> rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
+    .onTrue(new InstantCommand(() -> rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
 
     driverController.y()
         .onTrue(new InstantCommand(() -> rollerSubsystem.rollerChange(0.1), rollerSubsystem));

@@ -250,13 +250,12 @@ public class DriveSubsystem extends SubsystemBase {
   DifferentialDriveKinematics kinematics =
       new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
                                                                    // velocity
-
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-      var wheelSpeeds = new DifferentialDriveWheelSpeeds(0.5, 0.5);
+         //var wheelSpeeds = new DifferentialDriveWheelSpeeds(0.5, 0.5);
     // Convert to chassis speeds.
-      ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+        // ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
     // Linear velocity,  pi * diameter * angular velocity, or v = v - /2
-    double linearVelocity = chassisSpeeds.vxMetersPerSecond/2;
+    double linearVelocity = 0.25; //chassisSpeeds.vxMetersPerSecond/2;
     SmartDashboard.putNumber("linear", linearVelocity);
     // Angular velocity   
     double angularVelocity =   0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
