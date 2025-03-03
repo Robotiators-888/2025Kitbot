@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RollerConstants;
 import frc.robot.subsystems.CANRollerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.SUB_LEDs;
@@ -36,6 +37,7 @@ public class RobotContainer {
   public final static DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
   public final static CANRollerSubsystem rollerSubsystem = CANRollerSubsystem.getInstance();
   private final SendableChooser<Command> autoChooser;
+  public SUB_LEDs led = new SUB_LEDs(1);
 
   // The driver's controller
   private final CommandXboxController driverController = new CommandXboxController(
@@ -87,9 +89,11 @@ public class RobotContainer {
   private void configureBindings() {
     // Set the A button to run the "runRoller" command from the factory with a fixed
     // value ejecting the gamepiece while the button is held
+ driverController.a().whileTrue(
+        new RunCommand(() -> rollerSubsystem.spinRoller(RollerConstants.ROLLER_EJECT_VALUE)));
 
-    driverController.a().whileTrue(
-        new RunCommand(() -> SUB_LEDs.ledValue = BlinkinPattern.RAINBOW_RAINBOW_PALETTE.value));
+    driverController.b().onTrue(
+        new InstantCommand(() -> SUB_LEDs.set(BlinkinPattern.GREEN.value)));
 
     driverController.x()
     .onTrue(new InstantCommand(() -> rollerSubsystem.rollerChange(-0.1), rollerSubsystem));
