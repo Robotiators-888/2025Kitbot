@@ -132,6 +132,7 @@ public class DriveSubsystem extends SubsystemBase {
         new Pose2d()); // could do Rotation2d.fromDegrees(getAngle())
     // and do new Pose2d(0, 0, new Rotation2d(0)
 
+    resetPose(pose);
   }
 
   public void resetEncoders() {
@@ -157,19 +158,6 @@ public class DriveSubsystem extends SubsystemBase {
   public double getTurnRate() {
     return navx.getRate() * (Constants.DriveConstants.Autonomous.kGyroReversed ? -1.0 : 1.0);
   }// feed forward implicates to here
-
-  @Override
-  public void periodic() {
-    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
-        rightLeaderEncoder.getPosition());
-
-    publisher.set(m_poseEstimator.getEstimatedPosition());
-    SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
-    SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
-    SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
-    SmartDashboard.putNumber("turnRate", getTurnRate());
-    SmartDashboard.putNumber("gyroHeading", getGyroHeading());
-  }
 
   public void sarcadeDrive(double xSpeed, double zRotation) {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
@@ -215,7 +203,17 @@ public class DriveSubsystem extends SubsystemBase {
     return getgyro();
   }// check if this works
 
-  public ChassisSpeeds getChassisSpeeds() {
+
+ public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+  driveRobotRelative(
+  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
+  }
+
+  DifferentialDriveKinematics kinematics =
+      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
+                                                                   // velocity
+
+   public ChassisSpeeds getChassisSpeeds() {
     double rSpeedRPM = rightLeaderEncoder.getVelocity();
     double lSpeedRPM = leftLeaderEncoder.getVelocity();
 
@@ -226,47 +224,45 @@ public class DriveSubsystem extends SubsystemBase {
     // what was used -> ((rSpeedRPMConstants.DriveConstants.GEARRATIO/) * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
     double lSpeedMPS = (lSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
     // speedRPM * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
-    SmartDashboard.putNumber("LM", lSpeedMPS);
-    SmartDashboard.putNumber("RM", rSpeedMPS);
-    SmartDashboard.putNumber("LR", lSpeedRPM);
-    SmartDashboard.putNumber("RR", rSpeedRPM);
+
     return Constants.DriveConstants.KDriveKinematics
         .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
     // ChassisSpeeds to WheeleSpeeds /\ //TODO find out why the returned speed doesn't change anything
 
   }
 
-  // public DifferentialDriveWheelSpeeds getWheelSpeeds(){
-  //   double leftSpeedMPS = leftLeaderEncoder.getVelocity() * 1/Constants.DriveConstants.GEARRATIO * Constants.DriveConstants.wheelDiameterIN;
-  //   double rightSpeedMPS = rightLeaderEncoder.getVelocity() * 1/Constants.DriveConstants.GEARRATIO * Constants.DriveConstants.wheelDiameterIN;
-  //   return new DifferentialDriveWheelSpeeds(leftSpeedMPS, rightSpeedMPS);
-  // }  // may want to use
-
-  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-  driveRobotRelative(
-  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-  }
-
-  DifferentialDriveKinematics kinematics =
-      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
-                                                                   // velocity
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
          //var wheelSpeeds = new DifferentialDriveWheelSpeeds(0.5, 0.5);
     // Convert to chassis speeds.
-        // ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
-    // Linear velocity,  pi * diameter * angular velocity, or v = v - /2
-    double linearVelocity = 0.25; //chassisSpeeds.vxMetersPerSecond/2;
-    SmartDashboard.putNumber("linear", linearVelocity);
-    // Angular velocity   
-    double angularVelocity =   0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
-    SmartDashboard.putNumber("angular", angularVelocity);
+        ///ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
 
-    drive.arcadeDrive(linearVelocity, angularVelocity);
+    // Linear velocity,  pi * diameter * angular velocity, or v = v - trackwidth*angular velocity/2
+    double linearVelocity = (1 * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI);
+    
+    // Angular velocity   
+    double angularVelocity = -0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
+    SmartDashboard.putNumber("angular", angularVelocity);
+    SmartDashboard.putNumber("linear", linearVelocity);
+    drive.arcadeDrive(linearVelocity, 0);
       //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
   }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
 
-  //ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02); possibly
-  //track radius
+
+
+  @Override
+  public void periodic() {
+    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+        rightLeaderEncoder.getPosition());
+
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+    SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
+    SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
+    SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
+    SmartDashboard.putNumber("turnRate", getTurnRate());
+    SmartDashboard.putNumber("gyroHeading", getGyroHeading());
+  }
+
+
 
   private static DriveSubsystem INSTANCE = null;
 

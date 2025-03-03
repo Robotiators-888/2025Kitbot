@@ -45,7 +45,7 @@ public final class Constants {
         // with no testing, can find by taking 85% of the no load speed
       //TODO May need Moment of inertia for the robot
 
-    public static final boolean kGyroReversed = true;
+    public static final boolean kGyroReversed = false;//may want to change
     public static final double kGyroRotation = 0;
     public static ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.5, 0, 0.5);
   

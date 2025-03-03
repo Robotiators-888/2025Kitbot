@@ -136,7 +136,7 @@ public class SUB_LEDs extends SubsystemBase {
   public static double ledValue = -0.99;
 
   public SUB_LEDs(int port) {
-    blinkin = new Spark(9);// prevousely used port
+    blinkin = new Spark(port);
   }
 
   @Override
