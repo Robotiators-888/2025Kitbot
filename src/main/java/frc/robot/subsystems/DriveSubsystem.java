@@ -12,6 +12,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,9 +47,22 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final DifferentialDrive drive;
   private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
-
+  StructPublisher<Pose2d> publisher4 = NetworkTableInstance.getDefault().getStructTopic("EstimatedPose",Pose2d.struct).publish;
+  StructPublisher<Pose2d> publisher5 = NetworkTableInstance.getDefault().getStructTopic("",Pose2d.struct).publish;
+  StructPublisher<Pose2d> publisher6 = NetworkTableInstance.getDefault().getStructTopic("",Pose2d.struct).publish;
 
   public DriveSubsystem() {
+
+  //   StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+  // .getStructTopic("AdvantageScopeOdometry", Pose2d.struct).publish();
+
+  // public StructPublisher<Pose2d> publisher1 = NetworkTableInstance.getDefault()
+  // .getStructTopic("debugXPoint", Pose2d.struct).publish(); 
+
+  // public StructPublisher<Pose2d> publisher2 = NetworkTableInstance.getDefault()
+  // .getStructTopic("debugYPoint", Pose2d.struct).publish(); 
+
+    
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
@@ -102,7 +117,18 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+      rightLeaderEncoder.getPosition());
+
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+    SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
+    SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
+    SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
+    SmartDashboard.putNumber("turnRate", getTurnRate());
+    SmartDashboard.putNumber("gyroHeading", getGyroHeading());
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+  }
 
 
   public void arcadeDrive(double xSpeed, double zRotation) {
