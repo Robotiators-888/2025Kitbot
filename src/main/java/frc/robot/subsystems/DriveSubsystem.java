@@ -12,76 +12,64 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
-
 public class DriveSubsystem extends SubsystemBase {
-
-  public StructPublisher<Pose2d> publisher =
-      NetworkTableInstance.getDefault().getStructTopic("Odometry", Pose2d.struct).publish();
-  public StructPublisher<Pose2d> publisher2 =
-      NetworkTableInstance.getDefault().getStructTopic("resetpose", Pose2d.struct).publish();
-
-  public StructPublisher<Pose2d> publisher3 =
-      NetworkTableInstance.getDefault().getStructTopic("rightencoder", Pose2d.struct).publish();
-  // publish right and left encoders
-
   public SparkMax leftLeader;
   public SparkMax leftFollower;
   public SparkMax rightLeader;
   public SparkMax rightFollower;
 
-  public RelativeEncoder leftLeaderEncoder;
-  public RelativeEncoder rightLeaderEncoder;
-  public RelativeEncoder leftFollowerEncoder;
-  public RelativeEncoder rightFollowerEncoder;
-
-  public DifferentialDrivePoseEstimator m_poseEstimator;
-  // private Pose2d odometryPose = new Pose2d();
+  public RelativeEncoder leftLeaderEncoder = leftLeader.getEncoder();
+  public RelativeEncoder rightLeaderEncoder = rightLeader.getEncoder();
+  public RelativeEncoder leftFollowerEncoder = leftFollower.getEncoder();
+  public RelativeEncoder rightFollowerEncoder = rightFollower.getEncoder();
+  private Pose2d odometryPose = new Pose2d();
 
   DifferentialDriveOdometry driveOdometry;
 
-  // SmartDashboard.putData(navx); // could be used
-
   private final DifferentialDrive drive;
-  private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI, AHRS.NavXUpdateRate.k50Hz);
-  // AHRS.NavXComType.setInputRange(-180,180);// find out how to use this seen set...range with PID
-
-  Pose2d pose = new Pose2d();
+  private static AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+  StructPublisher<Pose2d> publisher4 = NetworkTableInstance.getDefault().getStructTopic("EstimatedPose",Pose2d.struct).publish;
+  StructPublisher<Pose2d> publisher5 = NetworkTableInstance.getDefault().getStructTopic("",Pose2d.struct).publish;
+  StructPublisher<Pose2d> publisher6 = NetworkTableInstance.getDefault().getStructTopic("",Pose2d.struct).publish;
 
   public DriveSubsystem() {
 
+  //   StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+  // .getStructTopic("AdvantageScopeOdometry", Pose2d.struct).publish();
+
+  // public StructPublisher<Pose2d> publisher1 = NetworkTableInstance.getDefault()
+  // .getStructTopic("debugXPoint", Pose2d.struct).publish(); 
+
+  // public StructPublisher<Pose2d> publisher2 = NetworkTableInstance.getDefault()
+  // .getStructTopic("debugYPoint", Pose2d.struct).publish(); 
+
+    
     // create brushed motors for drive
     leftLeader = new SparkMax(DriveConstants.LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(DriveConstants.LEFT_FOLLOWER_ID, MotorType.kBrushless);
     rightLeader = new SparkMax(DriveConstants.RIGHT_LEADER_ID, MotorType.kBrushless);
-    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless);
+    rightFollower = new SparkMax(DriveConstants.RIGHT_FOLLOWER_ID, MotorType.kBrushless); 
 
-    leftLeaderEncoder = leftLeader.getEncoder();
-    rightLeaderEncoder = rightLeader.getEncoder();
-    leftFollowerEncoder = leftFollower.getEncoder();
-    rightFollowerEncoder = rightFollower.getEncoder();
-
-    navx.setAngleAdjustment(0);
-    SmartDashboard.putData(navx);
     // set up differential drive class
-    // public final Field2d m_field = new Field2d();
     drive = new DifferentialDrive(leftLeader, rightLeader);
 
     // Set can timeout. Because this project only sets parameters once on
@@ -104,63 +92,50 @@ public class DriveSubsystem extends SubsystemBase {
     // Set configuration to follow leader and then apply it to corresponding
     // follower. Resetting in case a new controller is swapped
     // in and persisting in case of a controller reset due to breaker trip
-    config.encoder.positionConversionFactor(Constants.DriveConstants.ConversionFactor);
-
-    
     config.follow(leftLeader);
     config.inverted(true);
-
     leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     config.follow(rightLeader);
     rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Remove following, then apply config to right leader
-    config.inverted(true);
+    config.inverted(false);
     config.disableFollowerMode();
     rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     // Set conifg to inverted and then apply to left leader. Set Left side inverted
     // so that postive values drive both sides forward
-    config.inverted(false);
+    config.inverted(true);
     leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    resetEncoders();
-    zeroHeading();
+    // public Robot() {
+    // leftLeader.setInverted(true);
+    // All other subsystem initialization
+    // ...
 
-
-    m_poseEstimator = new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
-        navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
-        new Pose2d()); // could do Rotation2d.fromDegrees(getAngle())
-    // and do new Pose2d(0, 0, new Rotation2d(0)
-
-    resetPose(pose);
+    // Load the RobotConfig from the GUI settings. You should probably
+    // store this in your Constants file
   }
 
-  public void resetEncoders() {
-    rightLeaderEncoder.setPosition(0);
-    rightFollowerEncoder.setPosition(0);
-    leftLeaderEncoder.setPosition(0);
-    leftFollowerEncoder.setPosition(0);
-  }// the followers may not be nessary
+  @Override
+  public void periodic() {
+    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
+      rightLeaderEncoder.getPosition());
 
-  public void zeroHeading() {
-    navx.reset();
-    navx.isCalibrating();
-  }
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+    SmartDashboard.putNumber("NAVX Angle", navx.getAngle().degreesToRadians);
+    SmartDashboard.putNumber("rightEncoder", Unit.degreesToRadians.getrightLeaderEncoder());
+    SmartDashboard.putNumber("leftEncoder", Unit.degreesToRadians.getleftLeaderEncoder());
+    SmartDashboard.putNumber("turnRate", Unit.degreesToRadians.getTurnRate());
+    SmartDashboard.putNumber("gyroHeading", Unit.degreesToRadians.getGyroHeading());
+    publisher.set(m_poseEstimator.getEstimatedPosition());
+    //atempt at converting degrees to radians with Unit.degreesToRadians, could also use.degreesToRadians 
+    //or go to the actual function to change the values
+    
+  } 
 
-  public static double getGyroHeading() {
-    return navx.getRotation2d().getDegrees();
-  }
-  // may want to use \/ if nessary
-  // public Rotation2d getGyroHeading() {
-  // return new Rotation2d(-1 * Math.toRadians(navx.getYaw()));
-  // }
 
-  public double getTurnRate() {
-    return navx.getRate() * (Constants.DriveConstants.Autonomous.kGyroReversed ? -1.0 : 1.0);
-  }// feed forward implicates to here
-
-  public void sarcadeDrive(double xSpeed, double zRotation) {
-    drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation, 2));
+  public void arcadeDrive(double xSpeed, double zRotation) {
+    drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation,2));
   }
 
   // Command to drive the robot with joystick inputs
@@ -170,105 +145,53 @@ public class DriveSubsystem extends SubsystemBase {
         driveSubsystem);
   }
 
-  public double getrightLeaderEncoder() {
-    return rightLeaderEncoder.getPosition();
-  }
-
-  public double getleftLeaderEncoder() {
-    return leftLeaderEncoder.getPosition();
-  }
-
   public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
+    return driveOdometry.getPoseMeters();
   }
 
-  public RelativeEncoder getrightEncoder() {
-    return getrightEncoder();
+  public DifferentialDrivePoseEstimator m_poseEstimator =
+      new DifferentialDrivePoseEstimator(Constants.DriveConstants.KDriveKinematics,
+      navx.getRotation2d(),
+      leftLeaderEncoder.getPosition(),
+      rightLeaderEncoder.getPosition(),
+          new Pose2d(0, 0, new Rotation2d(0)));
+    //TODO: cheak to see if done right /\
+
+   public void setPosition(Pose2d position) {
+    //driveOdometry.resetPosition(getGyroHeading(), this.rotationsToMeters(leftPrimaryEncoder.getPosition()), this.rotationsToMeters(rightSecondaryEncoder.getPosition()),
+    //new Pose2d(0, 0, new Rotation2d()));
+     //zeroEncoders();
+     driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(), position);
+   }
+        
+public void resetPose(Pose2d pose) {
+    //zeroEncoders();
+    driveOdometry.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(), rightLeaderEncoder.getPosition(),
+        pose);
   }
 
-  public RelativeEncoder getleftEncoder() {
-    return getleftEncoder();
-  }// hopeful uses the right encoders
+  public ChassisSpeeds getChassisSpeeds() {
+    return Constants.DriveConstants.KDriveKinematics.toChassisSpeeds(null);
+  }//TODO: Replace getmoduelStates with the appropriate wheels speed  
 
-  public void resetPose(Pose2d pose) {
-    SmartDashboard.putBoolean("done?", true);
-    m_poseEstimator.resetPosition(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
-        rightLeaderEncoder.getPosition(), pose);
-    // code is telling itself that it is alredy where it is
-    publisher2.set(getPose());
-    this.pose = pose;
-  }
-
-  public NavXComType getgyro() {
-    return getgyro();
-  }// check if this works
-
-
- public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
-  driveRobotRelative(
-  ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
-  }
-
-  DifferentialDriveKinematics kinematics =
-      new DifferentialDriveKinematics(Units.inchesToMeters(27.0)); // has 2 meters persecond as
-                                                                   // velocity
-
-   public ChassisSpeeds getChassisSpeeds() {
-    double rSpeedRPM = rightLeaderEncoder.getVelocity();
-    double lSpeedRPM = leftLeaderEncoder.getVelocity();
-
-    double rSpeedMPS = (rSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
-    //                       according to the getrate in 2023 /\.  The math here gets 4.4 meters persecond, when the rpm is 6000
-    //((rSpeedRPM/Constants.DriveConstants.GEARRATIO) * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
-    // /\ can't work with path planner gets a linear velocity that is too slow
-    // what was used -> ((rSpeedRPMConstants.DriveConstants.GEARRATIO/) * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI / 60)/Constants.DriveConstants.GEARRATIO;
-    double lSpeedMPS = (lSpeedRPM / Constants.DriveConstants.GEARRATIO) * ((Math.PI * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN)) / 60);
-    // speedRPM * ((2 * Math.PI * Units.inchesToMeters(Constants.DriveConstants.ConversionFactor)) / 60);
-
-    return Constants.DriveConstants.KDriveKinematics
-        .toChassisSpeeds(new DifferentialDriveWheelSpeeds(lSpeedMPS, rSpeedMPS));
-    // ChassisSpeeds to WheeleSpeeds /\ //TODO find out why the returned speed doesn't change anything
-
+  public void driveFieldRelative(ChassisSpeeds fieldRelativeSpeeds) {
+    driveRobotRelative(
+        ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, getPose().getRotation()));
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-         //var wheelSpeeds = new DifferentialDriveWheelSpeeds(0.5, 0.5);
-    // Convert to chassis speeds.
-        ///ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(wheelSpeeds);
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
 
-    // Linear velocity,  pi * diameter * angular velocity, or v = v - trackwidth*angular velocity/2
-    double linearVelocity = (1 * Units.inchesToMeters(Constants.DriveConstants.wheelDiameterIN) * Math.PI);
-    
-    // Angular velocity   
-    double angularVelocity = -0.25;//(chassisSpeeds.omegaRadiansPerSecond / 2 * Math.PI);
-    SmartDashboard.putNumber("angular", angularVelocity);
-    SmartDashboard.putNumber("linear", linearVelocity);
-    drive.arcadeDrive(linearVelocity, 0);
-      //(robotRelativeSpeeds.vxMetersPerSecond / 5), -(robotRelativeSpeeds.omegaRadiansPerSecond / 2 * Math.PI));
-  }// angular velocity is mesured in radians persecond, used for omegaradianspersecond.
-
-
-
-  @Override
-  public void periodic() {
-    m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
-        rightLeaderEncoder.getPosition());
-
-    publisher.set(m_poseEstimator.getEstimatedPosition());
-    SmartDashboard.putNumber("NAVX Angle", navx.getAngle());
-    SmartDashboard.putNumber("rightEncoder", getrightLeaderEncoder());
-    SmartDashboard.putNumber("leftEncoder", getleftLeaderEncoder());
-    SmartDashboard.putNumber("turnRate", getTurnRate());
-    SmartDashboard.putNumber("gyroHeading", getGyroHeading());
+    //TODO:Find uses for TargetSpeeds, driveRobotRelative is needed.
   }
 
 
 
-  private static DriveSubsystem INSTANCE = null;
 
+ private static DriveSubsystem INSTANCE = null;
   public static DriveSubsystem getInstance() {
     if (INSTANCE == null) {
-      INSTANCE = new DriveSubsystem();
+        INSTANCE = new DriveSubsystem();
     }
     return INSTANCE;
   }
