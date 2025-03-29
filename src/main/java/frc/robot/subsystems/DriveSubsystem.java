@@ -164,7 +164,7 @@ public class DriveSubsystem extends SubsystemBase {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation,2));
   }
 
-  public void sarcadeDrive (int xSpeed, double zRotation) {
+  public void sarcadeDrive (double xSpeed, double zRotation) {
     drive.arcadeDrive(xSpeed, zRotation);
   }
 
