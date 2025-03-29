@@ -17,7 +17,7 @@ public class TestAuto extends SequentialCommandGroup {
     DriveSubsystem driveSubsystem = RobotContainer.driveSubsystem;
     CANRollerSubsystem rollerSubsystem = RobotContainer.rollerSubsystem;
     Command spinRoller = Commands.run(() -> rollerSubsystem.spinRoller(0.2), rollerSubsystem);
-    Command arcadeDrive = Commands.run(() -> driveSubsystem.sarcadeDrive(0.7,0), driveSubsystem);
+    Command arcadeDrive = Commands.run(() -> driveSubsystem.arcadeDrive(0.7,0), driveSubsystem);
    
 
     addCommands(arcadeDrive.withTimeout(5), spinRoller);

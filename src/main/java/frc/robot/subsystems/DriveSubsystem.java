@@ -164,9 +164,9 @@ public class DriveSubsystem extends SubsystemBase {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation,2));
   }
 
-  public void sarcadeDrive (double xSpeed, double zRotation) {
-    drive.arcadeDrive(xSpeed, zRotation);
-  }
+  // public void sarcadeDrive (double xSpeed, double zRotation) {
+  //   drive.arcadeDrive(xSpeed, zRotation);
+  // }
 
   // Command to drive the robot with joystick inputs
   public Command driveArcade(DriveSubsystem driveSubsystem, DoubleSupplier xSpeed,
