@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -116,17 +118,41 @@ public class DriveSubsystem extends SubsystemBase {
     // store this in your Constants file
   }
 
+  public double getleftLeaderEncoder() {
+    return leftLeaderEncoder.getPosition();
+  }
+
+  public double getrightLeaderEncoder() {
+    return rightLeaderEncoder.getPosition();
+  }
+
+  public double getleftFollowerEncoder() {
+    return leftFollowerEncoder.getPosition();
+  }
+
+  public double getrightFollowerEncoder() {
+    return rightFollowerEncoder.getPosition();
+  }
+
+  public double getGyroHeading() {
+    return navx.getAngle();
+  }
+
+  public double getTurnRate() {
+    return navx.getRate();
+  }
+
   @Override
   public void periodic() {
     m_poseEstimator.update(navx.getRotation2d(), leftLeaderEncoder.getPosition(),
       rightLeaderEncoder.getPosition());
 
     publisher.set(m_poseEstimator.getEstimatedPosition());
-    SmartDashboard.putNumber("NAVX Angle", navx.getAngle().degreesToRadians);
-    SmartDashboard.putNumber("rightEncoder", Unit.degreesToRadians.getrightLeaderEncoder());
-    SmartDashboard.putNumber("leftEncoder", Unit.degreesToRadians.getleftLeaderEncoder());
-    SmartDashboard.putNumber("turnRate", Unit.degreesToRadians.getTurnRate());
-    SmartDashboard.putNumber("gyroHeading", Unit.degreesToRadians.getGyroHeading());
+    SmartDashboard.putNumber("NAVX Angle", Math.toRadians(navx.getAngle()));
+    SmartDashboard.putNumber("rightEncoder", Math.toRadians(getrightLeaderEncoder()));
+    SmartDashboard.putNumber("leftEncoder", Math.toRadians(getleftLeaderEncoder()));
+    SmartDashboard.putNumber("turnRate", Math.toRadians(getTurnRate()));
+    SmartDashboard.putNumber("gyroHeading", Math.toRadians(getGyroHeading()));
     publisher.set(m_poseEstimator.getEstimatedPosition());
     //atempt at converting degrees to radians with Unit.degreesToRadians, could also use.degreesToRadians 
     //or go to the actual function to change the values
@@ -136,6 +162,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void arcadeDrive(double xSpeed, double zRotation) {
     drive.arcadeDrive(Math.pow(xSpeed, 2), Math.pow(zRotation,2));
+  }
+
+  public void sarcadeDrive (int xSpeed, double zRotation) {
+    drive.arcadeDrive(xSpeed, zRotation);
   }
 
   // Command to drive the robot with joystick inputs
